@@ -8,6 +8,7 @@
  * See the LICENSE file and https://mariadb.com/bsl11/
  */
 
+import { ChangeLibrary } from "@/renderer/components/change-library"
 import { Button } from "@/renderer/components/ui/button"
 import { Input } from "@/renderer/components/ui/input"
 import { H2 } from "@/renderer/components/ui/typography"
@@ -18,7 +19,6 @@ import { useAtom } from "jotai"
 import { Edit } from "lucide-react"
 import { useRef, useState } from "react"
 import { RatioIntro } from "../FAQ/ratioIntro"
-import { ChangeLibrary } from "@/renderer/components/change-library"
 
 export default function StrategyLibrary() {
 	const { setStoreValue } = window.electronAPI
@@ -73,6 +73,9 @@ export default function StrategyLibrary() {
 				</div>
 				<p className="text-muted-foreground">
 					导入、查看、编辑各类策略。并设置策略的实盘资金占比
+				</p>
+				<p className="text-sm text-muted-foreground mt-2">
+					💡 温馨提示：当前基础版支持最多导入 3 个策略
 				</p>
 			</div>
 

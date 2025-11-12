@@ -1,5 +1,5 @@
 appId: Quantclass
-productName: QuantclassClient
+productName: QuantclassClientBasic
 directories:
   buildResources: build
 extraResources:

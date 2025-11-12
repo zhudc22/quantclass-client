@@ -1,6 +1,6 @@
 {
 	"name": "quantclass",
-	"productName": "QuantclassClient",
+	"productName": "QuantclassClientBasic",
 	"version": "3.5.0",
 	"description": "Stock related service tool for Quantclass, including stock data download, stock data analysis, stock data visualization, etc.",
 	"main": "./out/main/index.js",

@@ -305,6 +305,40 @@ export function SelectStgForm({
 								</FormItem>
 							)}
 						/>
+
+						{/* 盘中择时功能 */}
+						<button
+							type="button"
+							className={cn(
+								"flex flex-col px-1 py-3 border rounded-lg cursor-pointer",
+								"hover:bg-accent/50 transition-colors",
+								"bg-gradient-to-r from-purple-50/50 to-pink-50/50",
+								"dark:from-purple-950/20 dark:to-pink-950/20",
+								"text-left",
+							)}
+							onClick={() => {
+								window.electronAPI.openUrl(
+									"https://www.quantclass.cn/fen/class/fen-2025",
+								)
+							}}
+						>
+							<div className="flex items-center justify-between">
+								<div className="flex items-center gap-2">
+									<div className="flex items-center gap-1">
+										<Biohazard className="size-4 text-purple-600 dark:text-purple-400" />
+										<span className="font-medium text-sm">盘中择时功能</span>
+									</div>
+									<span className="text-xs px-2 py-0.5 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 text-white">
+										分享会专享功能
+									</span>
+								</div>
+								<CircleHelp className="w-4 h-4 text-muted-foreground" />
+							</div>
+							<p className="text-xs text-muted-foreground mt-2 pl-5">
+								点击了解更多关于盘中择时的高级功能
+							</p>
+						</button>
+
 						<hr />
 
 						<div className="flex flex-col gap-3 bg-gray-100 border p-2 rounded-lg dark:bg-black">

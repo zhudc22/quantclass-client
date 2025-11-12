@@ -91,7 +91,13 @@ export default function StgImportButton() {
 	return (
 		<>
 			{isAutoRocket && <TradeCtrlBtn size="sm" className="h-8 lg:flex" />}
-			<ButtonTooltip content="请选择策略代码下的 config 文件">
+			<ButtonTooltip
+				content={
+					selectStgList.length >= 3
+						? "最多只能配置3个策略"
+						: "请选择策略代码下的 config 文件（最多支持3个策略）"
+				}
+			>
 				<Button
 					size="sm"
 					variant="outline"
