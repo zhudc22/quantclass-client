@@ -42,20 +42,14 @@ export const processOffsetList = (offsetListStr: string): number[] => {
 // 	}
 // }
 
-const genSelectStgInfo = (strategy: SelectStgType, includeInfo = true) => {
+const genSelectStgInfo = (strategy: SelectStgType) => {
 	return {
 		name: strategy.name,
 		cap_weight: strategy.cap_weight,
 		hold_period: strategy.hold_period,
-		offset_list: strategy.offset_list,
 		select_num: Number.parseInt(String(strategy.select_num)),
 		factor_list: strategy.factor_list,
 		filter_list: strategy.filter_list,
-		rebalance_time: strategy.rebalance_time,
-		timing: strategy.timing ?? null,
-		scalein_targets: strategy.scalein_targets ?? null,
-		override: strategy.override ?? null,
-		...(includeInfo ? { info: strategy.info ?? {} } : {}), // -- 根据参数决定是否包含info字段
 	}
 }
 
@@ -70,39 +64,26 @@ export const saveStrategyList = async (strategies: SelectStgType[]) => {
 		calc_time: strategy.calc_time ?? "08:00:00",
 	}))
 
-	//
-	const rebTimeCache: Record<
-		string,
-		{ sell_time: TimeValue; buy_time: TimeValue }
-	> = {}
-
-	const strategyDict = {}
-	for (let index = 0; index < strategiesWithAdjustedWeight.length; index++) {
-		const strategy = strategiesWithAdjustedWeight[index]
-		if (!rebTimeCache[strategy.rebalance_time ?? "close-open"]) {
-			rebTimeCache[strategy.rebalance_time ?? "close-open"] =
-				autoTradeTimeByRebTime(strategy.rebalance_time ?? "close-open")
-		}
-		strategyDict[`#${index}.${strategy.name}`] = genSelectStrategyDict(
-			strategy as SelectStgType,
-			rebTimeCache[strategy.rebalance_time ?? "close-open"],
-		)
-	}
 	// -- 生成策略配置字典，添加index
-	// const strategyDict = strategiesWithAdjustedWeight.reduce(
-	// 	(acc, item, index) => {
-	// 		acc[`#${index}.${item.name}`] = genSelectStrategyDict(
-	// 			item as SelectStgType,
-	// 		)
-	// 		return acc
-	// 	},
-	// 	{},
-	// )
-	// -- 生成aqua内核策略列表
-	const selectStrategyList = strategiesWithAdjustedWeight.map((stg) =>
-		genSelectStgInfo(stg, false),
+	const strategyDict = strategiesWithAdjustedWeight.reduce(
+		(acc, item, index) => {
+			acc[`#${index}.${item.name}`] = genSelectStrategyDict(
+				item as SelectStgType,
+			)
+			return acc
+		},
+		{},
 	)
-	await setStoreValue("select_stock.strategy_list", selectStrategyList)
+	// -- 生成basic内核策略列表
+	const selectStrategyList = strategiesWithAdjustedWeight.map((stg) =>
+		genSelectStgInfo(stg),
+	)
+
+	await setStoreValue(
+		"real_market.selected_stock_sties_25",
+		strategiesWithAdjustedWeight,
+	)
+	await setStoreValue("select_stock_lite.strategy_list", selectStrategyList)
 	return strategyDict
 }
 
@@ -120,7 +101,7 @@ export const saveStrategyListFusion = async (
 		}),
 	)
 
-	// -- 生成zeus内核策略列表
+	// -- 生成basic内核策略列表
 	const selectStrategyList = strategiesWithAdjustedWeight.map(
 		(stg: SelectStgType | StgGroupType | PosStrategyType) => {
 			switch (stg.type) {
@@ -189,27 +170,21 @@ export const saveStrategyListFusion = async (
 					strategy.strategy_list.length > 1
 						? `${strategyName}#${index0}.${subStrategy.name}`
 						: strategyName
-				strategyDict[dictKey] = genSelectStrategyDict(
-					{
-						...subStrategy,
-						cap_weight:
-							(subStrategy.cap_weight / 100) * (strategy.cap_weight ?? 0),
-					},
-					rebTimeVals[rebTime],
-				)
+				strategyDict[dictKey] = genSelectStrategyDict({
+					...subStrategy,
+					cap_weight:
+						(subStrategy.cap_weight / 100) * (strategy.cap_weight ?? 0),
+				})
 			}
 		} else {
 			const rebTime = strategy.rebalance_time ?? "close-open"
 			if (!rebTimeVals[rebTime]) {
 				rebTimeVals[rebTime] = autoTradeTimeByRebTime(rebTime)
 			}
-			strategyDict[strategyName] = genSelectStrategyDict(
-				{
-					...strategy,
-					cap_weight: strategy.cap_weight ?? 0 / 100,
-				},
-				rebTimeVals[rebTime],
-			)
+			strategyDict[strategyName] = genSelectStrategyDict({
+				...strategy,
+				cap_weight: strategy.cap_weight ?? 0 / 100,
+			})
 		}
 	}
 

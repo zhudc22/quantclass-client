@@ -26,13 +26,14 @@ import { useAtom, useAtomValue } from "jotai"
 
 import { useAlertDialog } from "@/renderer/context/alert-dialog"
 import ScheduleControl from "@/renderer/page/home/schedule"
-import { libraryTypeAtom } from "@/renderer/store/storage"
 import { type FC, useEffect } from "react"
 import { ABOUT_CLIENT_VER, AboutPage } from "../settings/about"
 
 const { getStoreValue, setStoreValue, closeApp } = window.electronAPI
 const Home: FC = () => {
 	const useAlert = useAlertDialog()
+
+	// biome-ignore lint/correctness/useExhaustiveDependencies:
 	useEffect(() => {
 		const aboutKey = `app.alert.${ABOUT_CLIENT_VER}`
 		getStoreValue(aboutKey, "").then((value) => {
@@ -86,34 +87,21 @@ export const KernalVersionDes = ({
 	const [{ data }] = useAtom(monitorProcessesQueryAtom)
 	const isUpdating = useAtomValue(isUpdatingAtom) // -- 获取内核是否自动更新
 	const isAutoRocket = useAtomValue(isAutoRocketAtom) // -- 获取是否自动实盘
-	const libraryType = useAtomValue(libraryTypeAtom)
-	const baseStatusList = [
+	const statusList = [
 		{
 			label: "数据模块",
 			Key: "fuel",
 		},
 		{
 			label: "选股模块",
-			Key: "aqua",
-		},
-		{
-			label: "高级选股模块",
-			Key: "zeus",
+			Key: "basic",
 		},
 		{ label: "下单模块", Key: "rocket" },
 	] as const
-	// 根据 libraryType 动态调整 statusList
-	const getStatusList = () => {
-		return baseStatusList.filter(
-			(item) => item.Key !== (libraryType === "pos" ? "aqua" : "zeus"),
-		)
-	}
-	const statusList = getStatusList()
 	const getStatusColor = (key: (typeof statusList)[number]["Key"]) => {
 		if (data?.some((v) => v.kernel === key)) return "🟢"
 		if (isUpdating && key === "fuel") return "🟡"
-		if (isAutoRocket && (key === "aqua" || key === "zeus" || key === "rocket"))
-			return "🟡"
+		if (isAutoRocket && (key === "basic" || key === "rocket")) return "🟡"
 		return "⚪" // 默认状态
 	}
 
@@ -126,7 +114,7 @@ export const KernalVersionDes = ({
 			>
 				<div className="flex items-center gap-3">
 					{statusList.map((item, index) => (
-						<ProcessHoverCard key={index}>
+						<ProcessHoverCard key={+index}>
 							<ProcessHoverCardTrigger>
 								<div className="flex items-center gap-1">
 									{item.label}: {getStatusColor(item.Key)}

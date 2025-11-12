@@ -19,7 +19,6 @@ import { H3 } from "@/renderer/components/ui/typography"
 import { isWindows } from "@/renderer/constant"
 import { isAutoRocketAtom, isUpdatingAtom } from "@/renderer/store"
 import { monitorProcessesQueryAtom } from "@/renderer/store/query"
-import { libraryTypeAtom } from "@/renderer/store/storage"
 import { userAtom } from "@/renderer/store/user"
 import dayjs from "dayjs"
 import { useAtom, useAtomValue } from "jotai"
@@ -34,16 +33,15 @@ import { useRef } from "react"
 import { useMemo } from "react"
 
 export const ProcessKanban = () => {
-	const { isMember } = useAtomValue(userAtom)
+	const { isStock } = useAtomValue(userAtom)
 	const [{ data }] = useAtom(monitorProcessesQueryAtom)
-	const libraryType = useAtomValue(libraryTypeAtom)
 
 	const { VITE_XBX_ENV } = import.meta.env
 
 	// 实盘交易权限检查
 	const canRealTrading =
 		VITE_XBX_ENV === "development" ||
-		(isMember && isWindows && VITE_XBX_ENV === "production")
+		(isStock && isWindows && VITE_XBX_ENV === "production")
 
 	return (
 		<div className="flex flex-col gap-2">
@@ -57,13 +55,10 @@ export const ProcessKanban = () => {
 
 			<div className="grid  gap-2">
 				<ProcessCard data={data} kernel="fuel" />
-				{canRealTrading && isMember && (
-					<ProcessCard
-						data={data}
-						kernel={libraryType === "pos" ? "zeus" : "aqua"}
-					/>
+				{canRealTrading && isStock && (
+					<ProcessCard data={data} kernel="basic" />
 				)}
-				{canRealTrading && isMember && (
+				{canRealTrading && isStock && (
 					<ProcessCard data={data} kernel="rocket" />
 				)}
 			</div>
@@ -75,11 +70,11 @@ export const ProcessCard = ({
 	data,
 	kernel,
 }: {
-	kernel: "fuel" | "aqua" | "rocket" | "zeus"
+	kernel: "fuel" | "basic" | "rocket"
 	data?: {
 		pid: number
 		action: string
-		kernel: "fuel" | "aqua" | "rocket" | "zeus"
+		kernel: "fuel" | "basic" | "rocket"
 		createdAt: string
 	}[]
 }) => {
@@ -90,18 +85,17 @@ export const ProcessCard = ({
 
 	const keyMap = {
 		fuel: "数据模块",
-		aqua: "选股模块",
-		zeus: "高级选股模块",
+		basic: "选股模块",
 		rocket: "下单模块",
 	}
 	const actionMap = {
 		fuel: "运行中...",
-		aqua: "计算中...",
+		basic: "计算中...",
 		rocket: "运行中...",
 	}
 	const timeMap = {
 		fuel: "上次更新时间",
-		aqua: "上次选股时间",
+		basic: "上次选股时间",
 		rocket: "上次运行时间",
 	}
 
@@ -123,12 +117,11 @@ export const ProcessCard = ({
 		lastRunTimeRef.current = latestProcess.createdAt
 	}
 
-	// 获取是否启动fuel或者aqua或者rocket
+	// 获取是否启动fuel或者basic或者rocket
 	const isInitializing = useMemo(() => {
 		return (
 			(isUpdating && kernel === "fuel") ||
-			(isAutoRocket &&
-				(kernel === "aqua" || kernel === "zeus" || kernel === "rocket"))
+			(isAutoRocket && (kernel === "basic" || kernel === "rocket"))
 		)
 	}, [isUpdating, isAutoRocket, kernel])
 

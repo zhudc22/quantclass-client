@@ -25,7 +25,7 @@ const DataList: FC = () => {
 		productList,
 		isUpdating: isProductUpdating,
 	} = useProductList()
-	const { roles, isMember } = useAtomValue(userAtom)
+	const { roles, isStock } = useAtomValue(userAtom)
 	const isUpdating = useAtomValue(isUpdatingAtom)
 
 	return (
@@ -41,7 +41,7 @@ const DataList: FC = () => {
 				loading={isProductUpdating}
 				actionOptions={DataTableActionOptions}
 				checkboxDisabled={(row) => {
-					if (isMember) return false
+					if (isStock) return false
 
 					const data = row.original as ISubscribeListType
 					const courseType = data.course_access?.[0]

@@ -57,7 +57,8 @@ import {
 	SquareFunction,
 	SquareTerminal,
 } from "lucide-react"
-import { FC, useState } from "react"
+import type { FC } from "react"
+import { useState } from "react"
 import Markdown from "react-markdown"
 import { useNavigate } from "react-router"
 import Img from "../../../build/icon.ico"
@@ -141,7 +142,7 @@ export const Footer: FC = () => {
 							<SquareFunction />
 							选股日志
 							<Badge className="font-mono" variant="secondary">
-								aqua/zeus
+								basic
 							</Badge>
 						</DropdownMenuItem>
 						<DropdownMenuItem

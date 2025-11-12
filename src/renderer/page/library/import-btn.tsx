@@ -28,11 +28,11 @@ import { DialogFooter, DialogHeader } from "@/renderer/components/ui/dialog"
 import { useToggleAutoRealTrading } from "@/renderer/hooks"
 import { useStrategyManager } from "@/renderer/hooks/useStrategyManager"
 import { backtestConfigAtom } from "@/renderer/store/storage"
-import { SelectStgType } from "@/renderer/types/strategy"
+import { selectStgListAtom } from "@/renderer/store/storage"
+import type { SelectStgType } from "@/renderer/types/strategy"
 import { openRealTradingFolder } from "@/renderer/utils"
 import { useMutation } from "@tanstack/react-query"
-import { useSetAtom } from "jotai"
-import { isArray } from "lodash-es"
+import { useAtomValue, useSetAtom } from "jotai"
 import {
 	Eraser,
 	FolderDown,
@@ -53,33 +53,31 @@ export default function StgImportButton() {
 	const [pending, setPending] = useState(false)
 	const [importOpen, setImportOpen] = useState(false)
 	const [deleteOpen, setDeleteOpen] = useState(false)
+	const selectStgList = useAtomValue(selectStgListAtom)
 
 	const setBacktestConfig = useSetAtom(backtestConfigAtom)
 	const { isAutoRocket, handleToggleAutoRocket } = useToggleAutoRealTrading()
-	const { resetSelectStgList, updateSelectStgList } = useStrategyManager()
+	const { resetSelectStgList, addStrategy } = useStrategyManager()
 	const { mutateAsync: importLibraryDir, isPending } = useMutation({
 		mutationKey: ["import-library"],
 		mutationFn: async (configFilePath: string) =>
 			await importSelectStock(configFilePath),
 		onSuccess: async (data) => {
-			const { configJson: strategyListStr = "", backtestName = "默认策略" } =
-				data
-			const strategyList = JSON.parse(strategyListStr)
+			const { configJson: strategyStr = "" } = data
+			const strategyJson = JSON.parse(strategyStr)
 
-			if (isArray(strategyList)) {
-				const strategyListWithCap0 = strategyList.map((item) => ({
-					...item,
-					cap_weight: 0,
-				}))
-
+			if (strategyJson) {
+				await addStrategy({
+					...strategyJson,
+					cap_weight: 0, // 导入时，资金占比重置为 0
+				} as SelectStgType)
 				// -- Set to config json store
-				setStoreValue("select_stock.backtest_name", backtestName)
+				setStoreValue("select_stock_lite.backtest_name", "选股策略库")
 				// -- Set to render local storage
 				setBacktestConfig((p) => ({
 					...p,
-					backtest_name: backtestName,
+					backtest_name: "选股策略库",
 				}))
-				updateSelectStgList(strategyListWithCap0 as SelectStgType[])
 			}
 			setImportOpen(false)
 			toast.success("导入成功")
@@ -98,11 +96,11 @@ export default function StgImportButton() {
 					size="sm"
 					variant="outline"
 					className="h-8 lg:flex"
-					disabled={isAutoRocket}
+					disabled={isAutoRocket || selectStgList.length >= 3}
 					onClick={() => setImportOpen(true)}
 				>
 					<FolderDown className="size-4 mr-2" />
-					导入策略
+					添加策略
 				</Button>
 			</ButtonTooltip>
 
@@ -149,36 +147,12 @@ export default function StgImportButton() {
 						</DialogTitle>
 					</DialogHeader>
 					<div className="space-y-1">
-						<span className="text-sm">🛟 支持导入：</span>
-						<ul className="space-y-2">
-							<li className="list-item">
-								<span className="mr-1">✅</span>
-								选股策略回测框架𝓟𝓻𝓸（select-stock-pro）
-							</li>
-							<li className="list-item">
-								<span className="mr-1">⚠️</span>
-								分享会策略库下载的
-								<span className="font-bold text-warning">选股类</span>
-								精心随机策略
-							</li>
-							<li className="list-item">
-								<span className="mr-1">🚫</span>
-								仓位管理策略回测框架（stock-position-mgmt）
-							</li>
-							<li className="list-item">
-								<span className="mr-1">🚫</span>
-								大A实盘选股框架𝓕𝓾𝓼𝓲𝓸𝓷（stock-position-mgmt-fusion）
-							</li>
-						</ul>
-					</div>
-					<hr />
-					<div className="space-y-1">
 						<span className="text-sm">ℹ️ 导入说明：</span>
 						<ul className="list-inside space-y-2">
 							<li className="flex items-center">
 								<Eraser size={18} className="mr-2" /> 导入会{" "}
-								<span className="text-danger">覆盖</span>
-								当前策略库中所有的策略
+								<span className="text-danger">追加</span>
+								到当前策略库中，同名策略不会覆盖
 							</li>
 							<li className="flex items-center">
 								<ShieldCheck size={18} className="mr-2" />
@@ -215,6 +189,10 @@ export default function StgImportButton() {
 							onClick={async (e) => {
 								e.preventDefault()
 								e.stopPropagation()
+								if (selectStgList.length >= 3) {
+									toast.warning("策略库最多只能导入3个策略")
+									return
+								}
 								handleToggleAutoRocket(false, true, true)
 								// setStoreValue("auto_real_trading", false) // 关闭自动实盘
 								const res = await selectFile({

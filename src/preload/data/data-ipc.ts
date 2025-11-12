@@ -236,8 +236,8 @@ async function handleFuelStatus() {
 	})
 }
 
-async function handleLoadAquaTradingInfo() {
-	ipcMain.handle("load-aqua-trading-info", async () => {
+async function handleLoadBasicTradingInfo() {
+	ipcMain.handle("load-basic-trading-info", async () => {
 		return await getJsonDataFromFile(
 			["real_trading", "data", "trading_info.json"],
 			"获取交易信息失败",
@@ -264,6 +264,6 @@ export const regDataIPC = () => {
 	handleUpdateFullProducts()
 	getTradingPlanListHandler()
 	fetchSelectedStrategiesList()
-	handleLoadAquaTradingInfo()
+	handleLoadBasicTradingInfo()
 	console.log("[reg] data-ipc")
 }

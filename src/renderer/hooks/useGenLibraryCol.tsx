@@ -11,20 +11,15 @@
 import EditableNumberCell from "@/renderer/components/EditableNumberCell"
 import { Badge } from "@/renderer/components/ui/badge"
 import { DataTableColumnHeader } from "@/renderer/components/ui/data-table-column-heder"
-import {
-	Tooltip,
-	TooltipContent,
-	TooltipTrigger,
-} from "@/renderer/components/ui/tooltip"
 import { useToggleAutoRealTrading } from "@/renderer/hooks"
 import { DeleteStrategy } from "@/renderer/page/strategy/delete"
 import StrategyEditDialog from "@/renderer/page/strategy/edit-dialog"
-import { SelectStgType } from "@/renderer/types/strategy"
+import type { SelectStgType } from "@/renderer/types/strategy"
 
 import { useFusionManager } from "@/renderer/hooks/useFusionManager"
 import { useStrategyManager } from "@/renderer/hooks/useStrategyManager"
 import { CheckCircledIcon } from "@radix-ui/react-icons"
-import { ColumnDef } from "@tanstack/react-table"
+import type { ColumnDef } from "@tanstack/react-table"
 import { useAtomValue } from "jotai"
 import { totalWeightAtom } from "../store/storage"
 
@@ -37,36 +32,6 @@ export const useGenLibraryColumn = (
 	const { updateFusionStgInRow } = useFusionManager()
 	const { isAutoRocket } = useToggleAutoRealTrading()
 	const { selectStgList, updateSelectStg } = useStrategyManager()
-
-	const getRebalanceTime = (rebalanceTimeType: string) => {
-		const rebalanceTimeList = [
-			{
-				label: "隔日换仓",
-				value: "close-open",
-			},
-			{
-				label: "早盘换仓",
-				value: "open",
-			},
-			// {
-			// 	label: "尾盘换仓",
-			// 	value: "close",
-			// },
-		]
-		const index = rebalanceTimeList.findIndex(
-			(item) => item.value === rebalanceTimeType,
-		)
-		let rebalanceTimeLabel = rebalanceTimeType
-		if (index === -1) {
-			const [startTime, endTime] = rebalanceTimeType.split("-") // 使用 '-' 分割字符串
-			if (startTime === endTime) {
-				rebalanceTimeLabel = `${startTime.slice(0, 2)}:${startTime.slice(2)}`
-			}
-		} else {
-			rebalanceTimeLabel = rebalanceTimeList[index].label
-		}
-		return rebalanceTimeLabel
-	}
 
 	return [
 		{
@@ -141,51 +106,6 @@ export const useGenLibraryColumn = (
 			header: "持仓周期",
 			size: 60,
 			enableResizing: false,
-		},
-		{
-			header: "OFFSET",
-			accessorKey: "offset_list",
-			// size: 120,
-			cell: ({ row }) => {
-				return (
-					<div className="whitespace-pre-wrap break-words truncate max-w-[260px]">
-						<Tooltip>
-							<TooltipTrigger asChild>
-								<div className="truncate">
-									{(row.original as SelectStgType).offset_list &&
-									(row.original as SelectStgType).offset_list.length > 0
-										? (row.original as SelectStgType).offset_list.join(",")
-										: "--"}
-								</div>
-							</TooltipTrigger>
-							<TooltipContent>
-								{(row.original as SelectStgType).offset_list &&
-									(row.original as SelectStgType).offset_list.join(",")}
-							</TooltipContent>
-						</Tooltip>
-					</div>
-				)
-			},
-		},
-		{
-			accessorKey: "rebalance_time",
-			header: "换仓时间",
-			cell: ({ row }) => {
-				return (
-					<div>
-						{getRebalanceTime(
-							(row.original as SelectStgType).rebalance_time ?? "close-open",
-						)}
-					</div>
-				)
-			},
-		},
-		{
-			accessorKey: "timing",
-			header: "择时",
-			cell: ({ row }) => {
-				return <div>{(row.original as SelectStgType).timing?.name ?? "无"}</div>
-			},
 		},
 		{
 			id: "action",

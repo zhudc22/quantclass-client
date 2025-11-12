@@ -27,6 +27,6 @@ export const storeIPC = {
 	cleanRealMarketData: (keys: string[]) =>
 		ipcRenderer.invoke("clean-real-market-data", keys),
 
-	// aqua trading info
-	loadAquaTradingInfo: () => ipcRenderer.invoke("load-aqua-trading-info"),
+	// basic trading info
+	loadBasicTradingInfo: () => ipcRenderer.invoke("load-basic-trading-info"),
 }

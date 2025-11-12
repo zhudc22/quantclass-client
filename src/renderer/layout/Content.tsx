@@ -74,12 +74,12 @@ const data = {
 				icon: LibraryBig,
 				libraryType: "select",
 			},
-			{
-				title: "综合策略库",
-				url: FUSION_STRATEGY_LIBRARY_PAGE,
-				icon: SquareLibrary,
-				libraryType: "pos",
-			},
+			// {
+			// 	title: "综合策略库",
+			// 	url: FUSION_STRATEGY_LIBRARY_PAGE,
+			// 	icon: SquareLibrary,
+			// 	libraryType: "pos",
+			// },
 			{
 				title: "回测",
 				url: BACKTEST_PAGE,

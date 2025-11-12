@@ -33,7 +33,7 @@ export const userInfoMutationAtom = atomWithMutation<
 export const postUserActionMutationAtom = atomWithMutation((get) => {
 	const { uuid = "", apiKey = "" } = get(accountKeyAtom)
 	const { clientVersion } = get(versionsAtom)
-	const { user } = get(userAtom)
+	const { isStock } = get(userAtom)
 
 	return {
 		mutationKey: ["post-user-action"],
@@ -45,7 +45,7 @@ export const postUserActionMutationAtom = atomWithMutation((get) => {
 
 			return postUserAction(apiKey, {
 				uuid,
-				role: `client-${clientVersion}${user?.isMember ? "-fen" : ""}`,
+				role: `client-${clientVersion}${isStock ? "-stock" : ""}`,
 				action,
 			})
 		},

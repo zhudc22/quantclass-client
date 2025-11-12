@@ -11,20 +11,20 @@
 import { Button } from "@/renderer/components/ui/button"
 import { EditIcon } from "@/renderer/icons/EditIcon"
 import { SelectStgForm } from "@/renderer/page/strategy/form"
-import { SelectStgType } from "@/renderer/types/strategy"
+import type { SelectStgType } from "@/renderer/types/strategy"
 
 import { parseToTimeValueWithSecond } from "@/renderer/utils"
 
-import { useFusionManager } from "@/renderer/hooks/useFusionManager"
-import { useStrategyManager } from "@/renderer/hooks/useStrategyManager"
-import { useState } from "react"
-import { toast } from "sonner"
 import {
 	Dialog,
 	DialogContent,
 	DialogHeader,
 	DialogTitle,
 } from "@/renderer/components/ui/dialog"
+import { useFusionManager } from "@/renderer/hooks/useFusionManager"
+import { useStrategyManager } from "@/renderer/hooks/useStrategyManager"
+import { useState } from "react"
+import { toast } from "sonner"
 
 export default function StrategyEditDialog({
 	strategy,
@@ -109,7 +109,7 @@ export default function StrategyEditDialog({
 							defaultValues={{
 								name: strategy.name,
 								hold_period: strategy.hold_period,
-								offset_list: (strategy.offset_list ?? ["0"]).join(","),
+								// offset_list: (strategy.offset_list ?? ["0"]).join(","),
 								filter_list: strategy.filter_list,
 								factor_list: strategy.factor_list,
 								select_num: strategy.select_num,

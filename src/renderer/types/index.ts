@@ -14,7 +14,6 @@ export type { RealMarketConfigType } from "./trading.js"
 // 定义一个基础策略类型
 export interface BaseStrategy {
 	name: string
-	offset_list: (string | number)[]
 	factors?: Record<string, string[]>
 	select_num: number | string
 	cap_weight: number

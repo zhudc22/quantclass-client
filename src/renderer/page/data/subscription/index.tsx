@@ -26,7 +26,7 @@ import type { FC } from "react"
 
 const DataSubscriptionTable: FC = () => {
 	const subscribeColumns = useGenSubscribeColumns()
-	const { roles, isMember } = useAtomValue(userAtom)
+	const { roles, isStock } = useAtomValue(userAtom)
 	const setRowSelection = useSetAtom(rowSelectionAtom)
 	const { dataSubscribedNameList } = useDataSubscribed()
 	const { apiProductList, update, isUpdating } = useProductList()
@@ -61,7 +61,7 @@ const DataSubscriptionTable: FC = () => {
 			loading={isUpdating}
 			actionOptions={DataTableActionOptions}
 			checkboxDisabled={(row) => {
-				if (isMember) return false
+				if (isStock) return false
 
 				const data = row.original as ISubscribeListType
 				const courseType = data.course_access?.[0]

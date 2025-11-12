@@ -59,7 +59,7 @@ import { AboutPage } from "./about"
 
 export default function SettingsPage() {
 	const [showContributors, setShowContributors] = useState(false)
-	const { isMember } = useAtomValue(userAtom)
+	const { isStock } = useAtomValue(userAtom)
 	const { checkWithToast } = usePermissionCheck()
 	const [isAutoLogin, setIsAutoLogin] = useAtom(isAutoLoginAtom)
 
@@ -68,7 +68,7 @@ export default function SettingsPage() {
 	// 实盘交易权限检查
 	const canRealTrading =
 		VITE_XBX_ENV === "development" ||
-		(isMember && isWindows && VITE_XBX_ENV === "production")
+		(isStock && isWindows && VITE_XBX_ENV === "production")
 	const version = useAtomValue(versionsAtom)
 	const setVersionList = useSetAtom(versionListAtom)
 	const { setAutoLaunch, openDataDirectory, killAllKernals, openUrl } =
@@ -76,7 +76,7 @@ export default function SettingsPage() {
 	const handleTimeTask = useHandleTimeTask() // 数据任务控制
 	const { isAutoRocket, handleToggleAutoRocket } = useToggleAutoRealTrading() // 自动交易控制
 
-	const { settings, updateSettings, isFusionMode } = useSettings()
+	const { settings, updateSettings } = useSettings()
 	const { realMarketConfig, setPerformanceMode } = useRealMarketConfig()
 	const isAutoLaunchRealTrading = useMemo(() => {
 		return settings.is_auto_launch_real_trading
@@ -169,11 +169,7 @@ export default function SettingsPage() {
 				await killAllKernals(true)
 
 				// -- 更新内核
-				for (const kernal of [
-					"fuel",
-					isFusionMode ? "zeus" : "aqua",
-					"rocket",
-				]) {
+				for (const kernal of ["fuel", "basic", "rocket"]) {
 					await invokeUpdateKernal(kernal as KernalType)
 				}
 				await refetchLocalVersions()
@@ -242,25 +238,15 @@ export default function SettingsPage() {
 						appVersions={appVersions}
 					/>
 
-					{canRealTrading && isMember && (
+					{canRealTrading && isStock && (
 						<>
-							{isFusionMode ? (
-								<KernalVersion
-									name="zeus"
-									title="高级选股内核"
-									Icon={SquareFunction}
-									versionKey="zeusVersion"
-									appVersions={appVersions}
-								/>
-							) : (
-								<KernalVersion
-									name="aqua"
-									title="选股内核"
-									Icon={SquareFunction}
-									versionKey="aquaVersion"
-									appVersions={appVersions}
-								/>
-							)}
+							<KernalVersion
+								name="basic"
+								title="选股内核"
+								Icon={SquareFunction}
+								versionKey="basicVersion"
+								appVersions={appVersions}
+							/>
 
 							<KernalVersion
 								name="rocket"
@@ -301,9 +287,9 @@ export default function SettingsPage() {
 					variant="outline"
 					size="sm"
 					onClick={async () => {
-						if (!isMember) {
+						if (!isStock) {
 							toast.dismiss()
-							toast.error("本功能为分享会同学使用")
+							toast.error("本功能为股票课程同学使用")
 							return
 						}
 						await handleUpdateKernals()

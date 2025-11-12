@@ -39,7 +39,7 @@ export class ProcessManage {
 			action: string
 			createdAt: string
 			pid?: number
-			kernel: "fuel" | "rocket" | "aqua" | "zeus"
+			kernel: "fuel" | "rocket" | "basic"
 		}
 	>
 
@@ -52,7 +52,7 @@ export class ProcessManage {
 		args: string[],
 		options: SpawnOptionsWithoutStdio,
 		action: string,
-		kernel: "fuel" | "rocket" | "aqua" | "zeus" = "fuel",
+		kernel: "fuel" | "rocket" | "basic" = "fuel",
 	) {
 		const childProcess = spawn(command, args, options)
 		const createdAt = dayjs().format("YYYY-MM-DD HH:mm")
@@ -142,11 +142,8 @@ export class ProcessManage {
 			if (action.action === "自动更新所有数据") {
 				await killKernalByForce("fuel")
 			}
-			if (action.kernel === "aqua") {
-				await killKernalByForce("aqua")
-			}
-			if (action.kernel === "zeus") {
-				await killKernalByForce("zeus")
+			if (action.kernel === "basic") {
+				await killKernalByForce("basic")
 			}
 			if (action.action === "启动 rocket") {
 				await killKernalByForce("rocket")
@@ -192,7 +189,7 @@ export const process_manager = new ProcessManage()
 export const execBin = async (
 	args: string[],
 	action: string,
-	kernel: "fuel" | "rocket" | "aqua" | "zeus" = "fuel",
+	kernel: "fuel" | "rocket" | "basic" = "fuel",
 	extraEnv?: string,
 ) => {
 	try {
@@ -202,13 +199,13 @@ export const execBin = async (
 
 		if (kernel !== "fuel") {
 			const isAnonymous = (!api_key && !hid) || !userAccount?.isLoggedIn //--是否是游客
-			const isAllowed = userAccount?.isMember // --是否是分享会
+			const isAllowed = userAccount?.isStock //--是否是股票课程同学
 			if (isAnonymous) {
 				logger.warn(`[exec-${kernel}] 未登录，不调用内核`)
 				return
 			}
 			if (!isAllowed) {
-				logger.warn(`[exec-${kernel}] 非分享会，不调用内核`)
+				logger.warn(`[exec-${kernel}] 非股票课程同学，不调用内核`)
 				return
 			}
 		}
@@ -229,14 +226,13 @@ export const execBin = async (
 		}
 
 		const fuelRunning = await isKernalRunning("fuel")
-		const aquaRunning = await isKernalRunning("aqua")
-		const zeusRunning = await isKernalRunning("zeus")
+		const basicRunning = await isKernalRunning("basic")
 		const rocketRunning = await isKernalRunning("rocket", true)
 		if (platform.isMacOS) exec(`chmod +x ${binPath}`)
 
 		logger.info(`[exec-${kernel}] 内核路径: ${binPath}`)
 		logger.info(
-			`[exec-${kernel}] fuel(${fuelRunning})、rocket(${rocketRunning})、aqua(${aquaRunning})、zeus(${zeusRunning})`,
+			`[exec-${kernel}] fuel(${fuelRunning})、rocket(${rocketRunning})、basic(${basicRunning})`,
 		)
 
 		if (
@@ -247,21 +243,18 @@ export const execBin = async (
 			logger.warn(`[exec-${kernel}] 仍在运行中，退出 execBin`)
 			return
 		}
-		if (aquaRunning && kernel === "aqua") {
+		if (basicRunning && kernel === "basic" && args[0] !== "load") {
 			logger.warn(`[exec-${kernel}] 仍在运行中，退出 execBin`)
 			return
 		}
-		if (zeusRunning && kernel === "zeus") {
-			logger.warn(`[exec-${kernel}] 仍在运行中，退出 execBin`)
-			return
-		}
+
 		if (rocketRunning && kernel === "rocket" && args[0] !== "load") {
 			logger.warn(`[exec-${kernel}] 仍在运行中，退出 execBin`)
 			return
 		}
 
 		if (
-			(kernel === "aqua" || kernel === "zeus") &&
+			kernel === "basic" &&
 			action === "选股" &&
 			process_manager.hasProcessWithAction("选股")
 		) {
@@ -321,7 +314,7 @@ function handlePythonProcess<T = any>(
 	pythonProcess: ChildProcessWithoutNullStreams,
 	resolve: (value?: T) => void,
 	reject: (reason?: any) => void,
-	kernel: "fuel" | "rocket" | "aqua" | "zeus",
+	kernel: "fuel" | "rocket" | "basic",
 	action: string,
 ) {
 	const mainWindow = windowManager.getWindow()

@@ -35,17 +35,14 @@ import {
 	FormMessage,
 } from "@renderer/components/ui/form"
 import {
-	AlarmClockCheck,
 	Biohazard,
 	CircleHelp,
 	CircuitBoard,
 	Filter,
 	Loader,
-	Shell,
 	Shuffle,
-	Timer,
 } from "lucide-react"
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 
@@ -60,38 +57,6 @@ export function SelectStgForm({
 		defaultValues,
 	})
 	const [saving, setSaving] = useState(false)
-
-	// 初始化 signalTime 状态
-	const [signalTime, setSignalTime] = useState<string>()
-
-	useEffect(() => {
-		const timing = form.getValues("timing")
-
-		// 如果timing存在，并且timing.signal_time有值且不等于close，并且time.factor_list不是空数组，找到因子分钟数据最大值setSignalTime(maxTime)
-		if (
-			(!timing?.signal_time || timing?.signal_time === "close") &&
-			timing?.factor_list?.length
-		) {
-			const timeArr = timing.factor_list.map((item) => item[4])
-
-			const numericTimes = timeArr.filter(
-				(item): item is string =>
-					typeof item === "string" && /^\d+$/.test(item),
-			)
-
-			const maxTime =
-				numericTimes.length > 0
-					? numericTimes.reduce((max, current) =>
-							current > max ? current : max,
-						)
-					: "close"
-			// console.log("maxTile", maxTime)
-
-			setSignalTime(maxTime)
-		} else {
-			setSignalTime("close") // 如果 timing 或 timing.factor_list 不存在，重置 signalTime
-		}
-	}, [form.getValues("timing")]) // 依赖项是 timing 的值
 
 	// -- 表单验证和提交逻辑
 	const validateAndSubmit = async (data: SelectStgFormData) => {
@@ -129,54 +94,6 @@ export function SelectStgForm({
 			})
 			setSaving(false)
 		}, 150)
-	}
-
-	//动态计算换仓时间selectItem
-	const getRebalanceOptions = () => {
-		const rebalance_time = form.getValues("rebalance_time") || "close-open"
-		const selectItems = [
-			{
-				key: "close-open",
-				label: "隔日换仓：尾盘卖出->盘后选股->早盘买入",
-				isDisabled: false,
-			},
-			{
-				key: "open",
-				label: "早盘换仓：盘后选股->早盘换仓(卖出后买入)",
-				isDisabled: false,
-			},
-			// {
-			// 	key: "close",
-			// 	label: "尾盘换仓：盘中选股->立即换仓(卖出后买入)",
-			// 	isDisabled: true,
-			// },
-		]
-		const index = selectItems.findIndex((item) => item.key === rebalance_time)
-
-		if (index === -1) {
-			selectItems.forEach((item) => {
-				item.isDisabled = true
-			})
-			const [startTime, endTime] = rebalance_time.split("-") // 使用 '-' 分割字符串
-			let label = rebalance_time
-			if (startTime === endTime) {
-				// 如果前后两段相同
-				label = `${startTime.slice(0, 2)}点${startTime.slice(2)}换仓：盘后选股->开盘后${startTime.slice(0, 2)}:${startTime.slice(2)}换仓(卖出后买入)`
-			}
-			selectItems.push({
-				key: rebalance_time,
-				label: label,
-				isDisabled: false,
-			})
-		} else {
-			selectItems.push({
-				key: "",
-				label: "支持自定义换仓，请去config.py文件中配置",
-				isDisabled: true,
-			})
-		}
-
-		return selectItems
 	}
 
 	return (
@@ -250,105 +167,6 @@ export function SelectStgForm({
 						/>
 						<FormField
 							control={form.control}
-							name="offset_list"
-							render={({ field, formState }) => (
-								<FormItem>
-									<FormControl>
-										<Input
-											{...field}
-											isRequired
-											variant="bordered"
-											label={
-												<>
-													<span className="mr-1">offset_list</span>
-													<span className="text-xs">
-														多个数字用逗号分隔，如：0,1,2
-													</span>
-												</>
-											}
-											errorMessage={formState.errors.offset_list?.message}
-										/>
-									</FormControl>
-								</FormItem>
-							)}
-						/>
-						<FormField
-							control={form.control}
-							name="rebalance_time"
-							render={({ field }) => (
-								<FormItem className="flex flex-col">
-									<FormControl>
-										<Select
-											className="relative z-60"
-											{...field}
-											label={
-												<>
-													换仓时间
-													<span className="text-xs ml-1">
-														新手建议使用早盘换仓模式
-													</span>
-												</>
-											}
-											isRequired
-											variant="bordered"
-											selectedKeys={[field.value!]}
-											onChange={(e) => {
-												const new_value = e.target.value
-												if (!new_value) return
-												// console.log("v", new_value)
-
-												const { sell_time, buy_time } = autoTradeTimeByRebTime(
-													new_value ?? "close-open",
-												) // -- 生成自动交易时间
-												form.setValue("sell_time", sell_time)
-												form.setValue("buy_time", buy_time)
-												// console.log("sell_time", sell_time)
-												// console.log("buy_time", buy_time)
-												field.onChange(e)
-											}}
-										>
-											{getRebalanceOptions().map((item) => (
-												<SelectItem key={item.key} isDisabled={item.isDisabled}>
-													{item.label}
-												</SelectItem>
-											))}
-											{/* <SelectItem
-												key="close-open"
-												isDisabled={name.includes("定风波")}
-											>
-												{"隔日换仓：尾盘卖出->盘后选股->早盘买入"}
-											</SelectItem>
-											<SelectItem
-												key="open"
-												isDisabled={name.includes("定风波")}
-											>
-												{"早盘换仓：盘后选股->早盘换仓(卖出后买入)"}
-											</SelectItem>
-											<SelectItem key="close" isDisabled={true}>
-												{"尾盘换仓：盘中选股->立即换仓(卖出后买入)"}
-											</SelectItem>
-											<SelectItem
-												key="0935-0935"
-												isDisabled={name.includes("定风波")}
-											>
-												{"9点35换仓：盘后选股->开盘后09:35换仓(卖出后买入)"}
-											</SelectItem>
-											<SelectItem
-												key="0945-0945"
-												isDisabled={name.includes("定风波")}
-											>
-												{"9点45换仓：盘后选股->开盘后09:45换仓(卖出后买入)"}
-											</SelectItem>
-											<SelectItem key="0955-0955">
-												{"9点55换仓：盘后选股->开盘后09:55换仓(卖出后买入)"}
-											</SelectItem> */}
-										</Select>
-									</FormControl>
-								</FormItem>
-							)}
-						/>
-						<FormField
-							control={form.control}
 							name="factor_list"
 							render={({ field }) => (
 								<FormItem className={cn("flex flex-col px-1")}>
@@ -371,7 +189,7 @@ export function SelectStgForm({
 												factor: [string, boolean, any, string | number | null],
 												index: number,
 											) => (
-												<div key={index} className="grid grid-cols-4 gap-2">
+												<div key={+index} className="grid grid-cols-4 gap-2">
 													<FormControl>
 														<InputUI
 															value={factor[0]} // -- 因子名称
@@ -443,7 +261,7 @@ export function SelectStgForm({
 												],
 												index: number,
 											) => (
-												<div key={index} className="grid grid-cols-4 gap-2">
+												<div key={+index} className="grid grid-cols-4 gap-2">
 													<FormControl>
 														<InputUI
 															value={filter[0]} // -- 因子名称
@@ -487,172 +305,6 @@ export function SelectStgForm({
 								</FormItem>
 							)}
 						/>
-						{form.getValues().timing ? (
-							<>
-								<hr />
-								<FormField
-									control={form.control}
-									name="timing"
-									render={({ field }) => (
-										<FormItem className={cn("flex flex-col px-1")}>
-											<FormLabel className="flex items-center gap-1">
-												<Timer className="size-4 mr-1" />
-												择时设置
-												<span className="text-xs">
-													（择时策略参数与择时策略具体实现有关）
-												</span>
-											</FormLabel>
-
-											<div className="grid grid-cols-4 gap-2 text-xs text-muted-foreground">
-												<span>策略名称</span>
-												<span>因子计算的股票范围</span>
-												<span>策略参数</span>
-												<span>计算择时的时间</span>
-											</div>
-
-											<div className="grid grid-cols-4 gap-2">
-												<FormControl>
-													<InputUI
-														value={field.value?.name}
-														className="text-muted-foreground text-xs"
-														readOnly
-													/>
-												</FormControl>
-												<FormControl>
-													<InputUI
-														value={field.value?.limit}
-														className="text-muted-foreground text-xs"
-														readOnly
-													/>
-												</FormControl>
-												<FormControl>
-													<InputUI
-														value={JSON.stringify(field.value?.params)}
-														className="text-muted-foreground text-xs"
-														readOnly
-													/>
-												</FormControl>
-												<FormControl>
-													<InputUI
-														value={signalTime}
-														className="text-muted-foreground text-xs"
-														readOnly
-													/>
-												</FormControl>
-											</div>
-											<FormMessage />
-										</FormItem>
-									)}
-								/>
-
-								<FormField
-									control={form.control}
-									name="timing"
-									render={({ field }) => (
-										<FormItem className={cn("flex flex-col px-1")}>
-											<FormLabel className="flex items-center gap-1">
-												<AlarmClockCheck className="size-4 mr-1" />
-												择时因子列表
-												<span className="text-xs">（暂不支持直接编辑）</span>
-											</FormLabel>
-
-											<div className="grid grid-cols-5 gap-2 text-xs text-muted-foreground">
-												<span>因子名称</span>
-												<span>排序方式</span>
-												<span>因子参数</span>
-												<span>因子计算参数</span>
-												<span>分钟数据</span>
-											</div>
-
-											<div className="space-y-2">
-												{field.value?.factor_list.map((factor, index) => (
-													<div key={index} className="grid grid-cols-5 gap-2">
-														<FormControl>
-															<InputUI
-																value={factor[0]} // -- 因子名称
-																className="text-muted-foreground text-xs"
-																readOnly
-															/>
-														</FormControl>
-														<FormControl>
-															<InputUI
-																value={
-																	factor[1] ? "从小到大排序" : "从大到小排序"
-																} // -- 排序方式
-																className="text-muted-foreground text-xs"
-																readOnly
-															/>
-														</FormControl>
-														<FormControl>
-															<InputUI
-																value={
-																	factor[2] !== null
-																		? JSON.stringify(factor[2])
-																		: "无参数"
-																} // -- 因子参数
-																className="text-muted-foreground text-xs font-mono"
-																readOnly
-															/>
-														</FormControl>
-														<FormControl>
-															<InputUI
-																value={factor[3]} // -- 因子计算参数（比如权重）
-																className="text-muted-foreground text-xs"
-																readOnly
-															/>
-														</FormControl>
-														<FormControl>
-															<InputUI
-																value={factor[4] || "close"} // -- 分钟数据
-																className="text-muted-foreground text-xs"
-																readOnly
-															/>
-														</FormControl>
-													</div>
-												))}
-											</div>
-
-											<FormMessage />
-										</FormItem>
-									)}
-								/>
-
-								<FormField
-									control={form.control}
-									name="timing"
-									render={({ field }) => (
-										<FormItem className={cn("px-1")}>
-											<FormLabel className="flex items-center gap-1">
-												<Shell className="size-4 mr-1" />
-												择时默认仓位
-												<span className="text-xs">
-													（当因各种原因无法按时算出择时信号的时候的默认仓位）
-												</span>
-											</FormLabel>
-											<FormControl>
-												<InputUI
-													value={field.value?.fallback_position ?? -1}
-													className="text-muted-foreground text-xs"
-												/>
-											</FormControl>
-											<p className="text-muted-foreground text-xs">
-												0表示空仓，1表示满仓，-1表示不设置（会依据因子具体数值安排仓位），也可以设置0.5表示半仓，或者其他的仓位小数
-											</p>
-										</FormItem>
-									)}
-								/>
-							</>
-						) : (
-							<div className="flex flex-col gap-1 bg-gray-100 border p-2 rounded-lg dark:bg-black">
-								<h3 className="text-sm flex items-center gap-1">
-									<Timer className="size-4 mr-1" />
-									无择时配置
-								</h3>
-								<p className="text-muted-foreground text-xs">
-									择时策略参数与择时策略具体实现有关，请先配置择时策略
-								</p>
-							</div>
-						)}
 						<hr />
 
 						<div className="flex flex-col gap-3 bg-gray-100 border p-2 rounded-lg dark:bg-black">
@@ -742,9 +394,8 @@ export function SelectStgForm({
 								className="w-52"
 								onClick={(e) => {
 									e.preventDefault()
-									const { sell_time, buy_time } = autoTradeTimeByRebTime(
-										form.getValues("rebalance_time") ?? "close-open",
-									)
+									const { sell_time, buy_time } =
+										autoTradeTimeByRebTime("close-open")
 									form.setValue("sell_time", sell_time)
 									form.setValue("buy_time", buy_time)
 								}}

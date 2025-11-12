@@ -265,13 +265,6 @@ async function importSelectStockHandler(): Promise<void> {
 				["real_trading"],
 				true,
 			)
-			// 如果是Windows操作系统，需要保证当前文件夹下，所有的文件都不是“只读”的
-			// if (platform.isWindows) {
-			// 	logger.info("[import] 重置只读权限")
-			// 	execSync(`chcp 65001 | attrib -r "${fuelProTradingPath}\*" /s /d`, {
-			// 		stdio: ["pipe", "ignore", "ignore"],
-			// 	})
-			// }
 			let configJsonStr: string | undefined
 			let backtestName: string | undefined
 
@@ -286,13 +279,12 @@ async function importSelectStockHandler(): Promise<void> {
 			// -- 读取并解析 config.py
 			try {
 				const content = fs.readFileSync(configFilePath, "utf-8")
-				const jsonStr = convertPythonVariableToJson(content, "strategy_list")
+				const jsonStr = convertPythonVariableToJson(content, "strategy")
 				if (!jsonStr) {
-					logger.error("[importLibraryDirHandler] 解析 strategy_list 失败")
-					return { success: false, error: "解析 strategy_list 失败" }
+					logger.error("[importLibraryDirHandler] 解析 strategy 失败")
+					return { success: false, error: "解析 strategy 失败" }
 				}
-				backtestName =
-					convertPythonVariableToJson(content, "backtest_name") ?? "默认策略"
+				backtestName = "选股策略库"
 				configJsonStr = jsonStr
 				logger.info(`[import] 解析 config.py 文件成功，策略名：${backtestName}`)
 			} catch (error) {
@@ -300,37 +292,9 @@ async function importSelectStockHandler(): Promise<void> {
 				return { success: false, error: "读取 config.py 文件失败" }
 			}
 
-			// -- 检查策略库和因子库文件夹是否存在
-			// if (!fs.existsSync(strategyPath) || !fs.existsSync(factorPath)) {
-			// 	await sendErrorToClient("源路径中未找到策略库或因子库文件夹")
-			// 	logger.error(
-			// 		"[importLibraryDirHandler] 源路径中未找到策略库或因子库文件夹",
-			// 	)
-			// 	throw new Error("源路径中未找到策略库或因子库文件夹")
-			// }
-
-			// -- 确保目标路径存在
-			// if (!fs.existsSync(fuelProTradingPath)) {
-			// 	fs.mkdirSync(fuelProTradingPath, { recursive: true })
-			// }
-
-			// -- 复制 config.py 到目标目录
-			// 不需要复制 config.py 文件
-			// fs.copyFileSync(
-			// 	configFilePath,
-			// 	path.join(fuelProTradingPath, "config.py"),
-			// )
-
 			// -- 复制策略库文件
 			const copyFiles = (sourcePath: string, targetPath: string) => {
 				logger.info(`[import] 复制文件夹: ${sourcePath} -> ${targetPath}`)
-				if (fs.existsSync(targetPath)) {
-					// -- 如果目标路径已存在，删除目标路径
-					fs.rmSync(targetPath, {
-						recursive: true,
-						force: true,
-					})
-				}
 				fs.mkdirSync(targetPath, { recursive: true })
 				// -- 复制文件
 				const files = fs.readdirSync(sourcePath)

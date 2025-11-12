@@ -12,14 +12,12 @@ import { useEffect, useRef, useState } from "react"
 const { subscribeScheduleStatus, unSubscribeSendScheduleStatusListener } =
 	window.electronAPI
 import { isUpdatingAtom } from "@/renderer/store"
-import { libraryTypeAtom } from "@/renderer/store/storage"
 import { useAtomValue } from "jotai"
 import "./index.css"
 export function KernalUpdateStatus() {
 	const [currentStatus, setCurrentStatus] = useState("") // 用于记录当前正在进行的状态
 	const currentStatusRef = useRef(currentStatus)
 	const isUpdating = useAtomValue(isUpdatingAtom)
-	const libraryType = useAtomValue(libraryTypeAtom)
 
 	const data = {
 		init: "正在初始化...",
@@ -29,11 +27,8 @@ export function KernalUpdateStatus() {
 		rocket_start: "正在调用Rocket...",
 		fuel_updating: "正在更新Fuel内核...",
 		fuel_start: "数据更新中...",
-		aqua_updating:
-			libraryType === "pos"
-				? "正在更新选股Zeus内核..."
-				: "正在更新选股Aqua内核...",
-		aqua_start: "选股中...",
+		basic_updating: "正在更新选股Basic内核...",
+		basic_start: "选股中...",
 		done: "",
 	}
 
@@ -62,6 +57,7 @@ export function KernalUpdateStatus() {
 		currentStatusRef.current = status
 	}
 
+	// biome-ignore lint/correctness/useExhaustiveDependencies:
 	useEffect(() => {
 		subscribeScheduleStatus((_event, status) => {
 			// 判断是否需要更新状态

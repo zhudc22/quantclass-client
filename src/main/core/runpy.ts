@@ -119,7 +119,7 @@ export async function checkRemoteVersions(now = true): Promise<AppVersions> {
  * @returns
  */
 export async function downloadKernal(
-	kernal: "fuel" | "aqua" | "rocket" | "zeus",
+	kernal: "fuel" | "basic" | "rocket",
 	version: string,
 	downloadUrl: string,
 ) {
@@ -251,7 +251,7 @@ export async function downloadKernal(
 }
 
 export async function updateKernal(
-	kernal: "aqua" | "rocket" | "zeus" | "fuel",
+	kernal: "rocket" | "basic" | "fuel",
 	targetVersion?: string,
 ) {
 	const winKernals = ["rocket"]

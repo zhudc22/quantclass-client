@@ -8,9 +8,9 @@
  * See the LICENSE file and https://mariadb.com/bsl11/
  */
 
-import { useCallback } from "react"
 import { useStore } from "@/renderer/context/store-context"
 import type { SelectStgType } from "@/renderer/types/strategy"
+import { useCallback } from "react"
 
 export function useStrategyManager() {
 	const {
@@ -20,14 +20,12 @@ export function useStrategyManager() {
 		resetSelectStgList,
 	} = useStore()
 
-	const updateSelectStgList = useCallback(
-		(strategies: SelectStgType[]) => {
-			setSelectStgList(strategies)
-			return strategies
+	const addStrategy = useCallback(
+		async (strategy: SelectStgType) => {
+			setSelectStgList([...selectStgList, strategy])
 		},
-		[setSelectStgList],
+		[selectStgList, setSelectStgList],
 	)
-
 	const addSelectStgList = useCallback(
 		(strategies: SelectStgType[]) => {
 			setSelectStgList([...selectStgList, ...strategies])
@@ -65,7 +63,7 @@ export function useStrategyManager() {
 
 		// -- 更新选股策略列表
 		syncSelectStgList,
-		updateSelectStgList,
+		addStrategy,
 		addSelectStgList,
 		removeSelectStg,
 		updateSelectStg,

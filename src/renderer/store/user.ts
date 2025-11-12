@@ -82,6 +82,7 @@ export const userAtom = atomWithStorage<UserAccount>(
 			stock: { label: "", disabled: true },
 			block: { label: "", disabled: true },
 		},
+		permissions: [],
 	},
 	undefined,
 	{ getOnInit: true },

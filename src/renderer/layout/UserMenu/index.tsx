@@ -48,7 +48,7 @@ const { VITE_BASE_URL } = import.meta.env
 
 export const UserMenu = () => {
 	const [nonce, setNonce] = useAtom(nonceAtom)
-	const [{ user, isLoggedIn, isMember }] = useAtom(userAtom)
+	const [{ user, isLoggedIn, isStock }] = useAtom(userAtom)
 	const clientId = useAtomValue(macAddressAtom)
 	const setTimestampSign = useSetAtom(timestampSignAtom)
 	const setStatusExpires = useSetAtom(statusExpiresAtom)
@@ -64,6 +64,7 @@ export const UserMenu = () => {
 	const [open, setOpen] = useState(false)
 	const [loginUrl, setLoginUrl] = useState("")
 	const [qrcodeInvalid, setQrcodeInvalid] = useState(false)
+	// biome-ignore lint/correctness/useExhaustiveDependencies:
 	useEffect(() => {
 		if (isLoggedIn) {
 			setOpen(false)
@@ -71,14 +72,15 @@ export const UserMenu = () => {
 		}
 	}, [isLoggedIn])
 	// -- 处理认证响应
+	// biome-ignore lint/correctness/useExhaustiveDependencies:
 	useEffect(() => {
 		const handleAuthResponse = async () => {
 			if (!authResponse || !user?.apiKey || !user?.uuid || !isLoggedIn) return
 
 			// const { role } = (await checkAccountRole()).data ?? { role: 0 }
 
-			// -- 如果角色不是分享会，则设置状态过期时间
-			if (!isMember) {
+			// -- 如果角色不是股票课程，则设置状态过期时间
+			if (!isStock) {
 				const res = await getStatusExpires(user.apiKey, user.uuid)
 				if (res.code === 200) {
 					setStatusExpires(res.data.valid_to)
@@ -100,6 +102,7 @@ export const UserMenu = () => {
 	}, [clientId, nonce])
 
 	// -- 初始化登录
+	// biome-ignore lint/correctness/useExhaustiveDependencies:
 	const initLogin = useCallback(() => {
 		setNonce(uuidV4())
 		setTimestampSign(generateTimestampSign())

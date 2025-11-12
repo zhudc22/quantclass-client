@@ -22,7 +22,9 @@ import {
 } from "@/renderer/components/ui/dropdown-menu"
 import { useLogout } from "@/renderer/layout/UserMenu/useLogout"
 import { cn } from "@/renderer/lib/utils"
+import { userAtom } from "@/renderer/store/user"
 import type { UserAccountInfo } from "@/shared/types"
+import { useAtomValue } from "jotai"
 import { LogOut, Sparkles } from "lucide-react"
 
 interface UserMenuContentProps {
@@ -32,6 +34,7 @@ interface UserMenuContentProps {
 export const UserMenuContent = ({ user }: UserMenuContentProps) => {
 	const { handleLogout } = useLogout()
 	const { openUrl } = window.electronAPI
+	const { isStock } = useAtomValue(userAtom)
 	return (
 		<DropdownMenuContent
 			className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg"
@@ -53,13 +56,13 @@ export const UserMenuContent = ({ user }: UserMenuContentProps) => {
 			<DropdownMenuSeparator />
 			<DropdownMenuGroup>
 				<DropdownMenuItem
-					className={cn(user?.isMember && "hover:cursor-default")}
+					className={cn(isStock && "hover:cursor-default")}
 					onClick={() => {
 						openUrl("https://www.quantclass.cn/fen/class/fen-2025")
 					}}
 				>
 					<Sparkles />
-					{user?.isMember ? "已开通分享会" : "了解分享会"}
+					{isStock ? "已开通股票课程" : "了解股票课程"}
 				</DropdownMenuItem>
 			</DropdownMenuGroup>
 			<DropdownMenuSeparator />

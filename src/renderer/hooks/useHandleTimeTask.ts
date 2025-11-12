@@ -30,7 +30,7 @@ const DEFAULT_MESSAGES: ToastMessage = {
 const { toggleHandler } = window.electronAPI
 
 export const useHandleTimeTask = () => {
-	const { isMember } = useAtomValue(userAtom)
+	const { isStock } = useAtomValue(userAtom)
 	const { uuid, apiKey } = useAtomValue(accountKeyAtom)
 	const setIsUpdating = useSetAtom(isUpdatingAtom)
 	const { isAutoRocket, handleToggleAutoRocket } = useToggleAutoRealTrading()
@@ -44,7 +44,7 @@ export const useHandleTimeTask = () => {
 		if (!checkWithToast().isValid) return false
 
 		// if (role === 0) {
-		if (!isMember) {
+		if (!isStock) {
 			toast.dismiss()
 			toast.warning("该功能为课程同学专属使用")
 			return false

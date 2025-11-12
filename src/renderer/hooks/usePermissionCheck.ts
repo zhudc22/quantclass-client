@@ -54,7 +54,7 @@ type PermissionCondition =
  * -- 用于检查用户的登录状态、会员权限、系统要求等
  */
 export function usePermissionCheck() {
-	const { isLoggedIn, isMember, permissions } = useAtomValue(userAtom)
+	const { isLoggedIn, isStock, permissions } = useAtomValue(userAtom)
 
 	/**
 	 * -- 显示提示信息
@@ -99,9 +99,8 @@ export function usePermissionCheck() {
 		}
 
 		// -- 检查会员权限
-		if (requireMember && !isMember) {
-			const message =
-				messages.requireMember ?? "本功能暂时仅限策略分享会同学使用"
+		if (requireMember && !isStock) {
+			const message = messages.requireMember ?? "本功能暂时仅限股票课程同学使用"
 			!skipToast && showToast(message, "member")
 			return { isValid: false, message, type: "member" }
 		}

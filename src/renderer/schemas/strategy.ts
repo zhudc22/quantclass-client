@@ -119,14 +119,8 @@ export const CoreStrategySchema = z.object({
 	cap_weight: z.number().default(0),
 	hold_period: HoldPeriodSchema,
 	select_num: SelectNumSchema,
-	offset_list: OffsetListSchema,
-	rebalance_time: RebalanceTimeSchema,
 	factor_list: z.array(z.any()),
 	filter_list: z.array(z.any()),
-	timing: TimingSchema,
-	scalein_targets: z.array(z.number()).optional(),
-	override: TimingSchema, // 提前离场逻辑
-	info: z.any().optional(), // 策略信息，用于存储策略的额外信息
 })
 
 export const SelectStgSchema = CoreStrategySchema.extend({

@@ -19,18 +19,18 @@ import { useCallback, useMemo } from "react"
 export const useGenSubscribeColumns = (): Array<
 	ColumnDef<ISubscribeListType>
 > => {
-	const { roles, isMember } = useAtomValue(userAtom)
+	const { roles, isStock } = useAtomValue(userAtom)
 
 	const isDisabled = useCallback(
 		(row: Row<ISubscribeListType>) => {
-			if (isMember) return false
+			if (isStock) return false
 
 			const courseType = row.original.course_access?.[0]
 			return courseType
 				? roles[courseType as keyof typeof roles].disabled
 				: true
 		},
-		[isMember, roles],
+		[isStock, roles],
 	)
 
 	const columns = useMemo(
@@ -38,7 +38,7 @@ export const useGenSubscribeColumns = (): Array<
 			{
 				id: "select",
 				header: ({ table }) =>
-					isMember && (
+					isStock && (
 						<Checkbox
 							onCheckedChange={(value) =>
 								table.toggleAllPageRowsSelected(!!value)
@@ -99,7 +99,7 @@ export const useGenSubscribeColumns = (): Array<
 				),
 			},
 		],
-		[isMember, isDisabled, roles],
+		[isStock, isDisabled, roles],
 	)
 
 	return columns

@@ -51,17 +51,16 @@ export async function getAppAndKernalVersions() {
 	try {
 		const { version } = PACKAGE_INFO
 		const fuelVersion = await getKernelVersion("fuel")
-		const aquaVersion = await getKernelVersion("aqua")
+		const basicVersion = await getKernelVersion("basic")
 		const rocketVersion = await getKernelVersion("rocket")
-		const zeusVersion = await getKernelVersion("zeus")
+
 		const clientVersion = version
 
 		return {
 			fuelVersion,
 			clientVersion,
-			aquaVersion,
-			zeusVersion,
 			rocketVersion,
+			basicVersion,
 		}
 	} catch (error) {
 		const { version } = PACKAGE_INFO
@@ -69,8 +68,7 @@ export async function getAppAndKernalVersions() {
 		return {
 			clientVersion: version,
 			fuelVersion: defaultVersion,
-			aquaVersion: defaultVersion,
-			zeusVersion: defaultVersion,
+			basicVersion: defaultVersion,
 			rocketVersion: defaultVersion,
 		}
 	}

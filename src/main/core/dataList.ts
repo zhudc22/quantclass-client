@@ -147,6 +147,14 @@ export const getBuyInfoList = async () => {
 	)
 }
 
+export const getRotationStrategiesList = async () => {
+	return getJsonDataFromFile(
+		["real_trading", "rotation_strategy_list.json"],
+		"轮动策略文件不存在或为空",
+	)
+}
+
+
 export const getSellInfoList = async () => {
 	return getJsonDataFromFile(
 		["real_trading", "rocket", "data", "sell.json"],

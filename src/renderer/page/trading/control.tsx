@@ -30,7 +30,7 @@ import { RealResultProvider } from "../backtest/context"
 import { RunResultTable } from "../backtest/results"
 
 export default function TradingControl() {
-	const { loadAquaTradingInfo, getStoreValue } = window.electronAPI
+	const { loadBasicTradingInfo, getStoreValue } = window.electronAPI
 	const backtestConfig = useAtomValue(backtestConfigAtom)
 	const [_, setSelectModuleTimes] = useState<string[]>([])
 
@@ -41,12 +41,13 @@ export default function TradingControl() {
 	const { isAutoRocket } = useToggleAutoRealTrading()
 
 	const { data, isLoading } = useQuery({
-		queryKey: ["load-aqua-trading-info"],
-		queryFn: () => loadAquaTradingInfo(),
+		queryKey: ["load-basic-trading-info"],
+		queryFn: () => loadBasicTradingInfo(),
 		refetchInterval: 7 * 1000,
 	})
 	const libraryType = useAtomValue(libraryTypeAtom)
 
+	// biome-ignore lint/correctness/useExhaustiveDependencies:
 	useEffect(() => {
 		getStoreValue("schedule.selectModule", []).then((selectModuleTimes) => {
 			setSelectModuleTimes(selectModuleTimes as string[])

@@ -18,7 +18,6 @@ import {
 	killKernalByForce,
 } from "@/main/utils/tools.js"
 import logger from "@/main/utils/wiston.js"
-import { LIBRARY_TYPE } from "@/shared/constants.js"
 import type { UserAccount } from "@/shared/types/user.js"
 import { platform } from "@electron-toolkit/utils"
 import dayjs from "dayjs"
@@ -53,12 +52,10 @@ async function initializeSystem() {
 	try {
 		// -- 非 Windows 平台到此结束
 		if (!platform.isWindows) return
-
 		// 强制更新用户信息
 		const userInfo = await userStore.getUserAccount(true)
-
-		// 若未获取到或不是共享会会员则return
-		if (!userInfo?.isMember) return
+		// 若未获取到或不是股票课程同学则return
+		if (!userInfo?.isStock) return
 	} catch (error) {
 		logger.error(`系统初始化失败: ${error}`)
 		throw error // -- 向上抛出错误，让调用方处理
@@ -93,7 +90,6 @@ function getCurrent15m(): string {
 const setupScheduler = async (): Promise<schedule.Job> => {
 	// -- 重置已存在的调度任务
 	cancelScheduler()
-	const libraryType = (await _store.get(LIBRARY_TYPE, "select")) as string
 	const mw = windowManager.getWindow()
 	try {
 		mw?.webContents.send("send-schedule-status", "init")
@@ -107,9 +103,9 @@ const setupScheduler = async (): Promise<schedule.Job> => {
 	 * 定时任务：每分钟执行一次
 	 * - 检查网络状态
 	 * - 检查用户登录状态
-	 * - 唤醒 Rocket
 	 * - 唤醒 Fuel
-	 * - 唤醒 Aqua
+	 * - 唤醒 Rocket
+	 * - 唤醒 Basic
 	 */
 	systemState.job = schedule.scheduleJob("* * * * *", async () => {
 		logger.info(">>>>>>>>>>>>>>>> scheduler start <<<<<<<<<<<<<<<<")
@@ -168,7 +164,7 @@ const setupScheduler = async (): Promise<schedule.Job> => {
 			}
 		}
 
-		// -- 当设置自动下单的时候，自动唤醒Aqua or Zeus
+		// -- 当设置自动下单的时候，自动唤醒Basic
 		if (requireTrading) {
 			// -- 获取定时任务时间
 			const selectModuleTimes = (await _store.get(
@@ -183,26 +179,12 @@ const setupScheduler = async (): Promise<schedule.Job> => {
 				`[scheduler-select] 选股模块定时任务: ${selectModuleTimes}, 当前时间: ${current15m}, 是否更新: ${isScheduleSelectModule}`,
 			)
 
-			logger.info(`[libraryType] 策略类型${libraryType}`)
-			switch (libraryType) {
-				case "pos":
-					if (await isKernalBusy("zeus")) {
-						logger.info("[zeus] 内核正忙，跳过本轮调度")
-					} else if (!isScheduleSelectModule) {
-						logger.info("[zeus] 非定时选股时间，跳过本轮选股")
-					} else {
-						await wakeUpZeus(userAccount, mw)
-					}
-					break
-				case "select":
-					if (await isKernalBusy("aqua")) {
-						logger.info("[aqua] 内核正忙，跳过本轮调度")
-					} else if (!isScheduleSelectModule) {
-						logger.info("[aqua] 非定时选股时间，跳过本轮选股")
-					} else {
-						await wakeUpAqua(userAccount, mw)
-					}
-					break
+			if (await isKernalBusy("basic")) {
+				logger.info("[basic] 内核正忙，跳过本轮调度")
+			} else if (!isScheduleSelectModule) {
+				logger.info("[basic] 非定时选股时间，跳过本轮选股")
+			} else {
+				await wakeUpBasic(userAccount, mw)
 			}
 		} else {
 			logger.info("[scheduler] 未启用自动实盘或者非Windows系统，跳过本轮调度")
@@ -226,31 +208,16 @@ async function wakeUpFuel(mw) {
 	}
 }
 
-async function wakeUpAqua(userAccount: UserAccount, mw) {
-	if (!userAccount?.isMember || !platform.isWindows) {
-		logger.info(`[Aqua] 非分享会状态，跳过Aqua，${userAccount?.user}`)
+async function wakeUpBasic(userAccount: UserAccount, mw) {
+	if (!userAccount?.isStock || !platform.isWindows) {
+		logger.info("[basic] 非股票课程同学或非Windows系统，跳过basic")
 		return
 	}
 	try {
-		mw?.webContents.send("send-schedule-status", "aqua_start")
-		await execBin(["select", "trading"], "选股", "aqua")
+		mw?.webContents.send("send-schedule-status", "basic_start")
+		await execBin(["select", "trading"], "选股", "basic")
 	} catch (error) {
-		logger.info(`[aqua] runtime error(${error})`)
-	} finally {
-	}
-}
-
-async function wakeUpZeus(userAccount: UserAccount, mw) {
-	if (!userAccount?.isMember || !platform.isWindows) {
-		logger.info(`[zeus] 非分享会状态，跳过zeus，${userAccount?.user}`)
-		return
-	}
-	logger.info("[zeus] 正在调用zeus")
-	try {
-		mw?.webContents.send("send-schedule-status", "aqua_start")
-		await execBin(["select", "trading"], "选股", "zeus")
-	} catch (error) {
-		logger.info(`[aqua] runtime error(${error})`)
+		logger.info(`[basic] runtime error(${error})`)
 	} finally {
 	}
 }
@@ -272,12 +239,10 @@ async function wakeUpRocket(userAccount: UserAccount, mw) {
 		}
 		return
 	}
-
-	if (!userAccount?.isMember) {
-		logger.info(`[trade] 非分享会状态，跳过Rocket，${userAccount?.user}`)
+	if (!userAccount?.isStock) {
+		logger.info("[rocket] 非股票课程同学，跳过Rocket")
 		return
 	}
-
 	// -- 交易条件检查
 	const shouldWakeUp = isTradingTime()
 	if (!shouldWakeUp) {

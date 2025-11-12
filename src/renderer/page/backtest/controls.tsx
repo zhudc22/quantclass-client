@@ -38,7 +38,7 @@ dayjs.extend(duration)
 
 export const BacktestControls = () => {
 	const [{ data }] = useAtom(monitorProcessesQueryAtom)
-	const isRunning = data?.some((item) => item.kernel === "aqua")
+	const isRunning = data?.some((item) => item.kernel === "basic")
 	const { checkWithToast } = usePermissionCheck()
 
 	const setBacktestExecTime = useSetAtom(backtestExecTimeAtom)
@@ -57,7 +57,7 @@ export const BacktestControls = () => {
 				startTime: dayjs().format("MM-DD HH:mm:ss"),
 				endTime: dayjs().format("MM-DD HH:mm:ss"),
 			})
-			const kernel = libraryType === "pos" ? "zeus" : "aqua"
+			const kernel = "basic"
 			console.log("开始回测", libraryType, kernel)
 			await execFuelWithEnv(["select"], "策略回测", kernel)
 			setBacktestExecTime(

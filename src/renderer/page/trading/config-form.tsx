@@ -71,7 +71,7 @@ type FormData = z.infer<typeof RealMarketConfigSchema>
 
 export function TradingConfigForm() {
 	const { selectDirectory, createRealTradingDir } = window.electronAPI
-	const { user } = useAtomValue(userAtom)
+	const { isStock } = useAtomValue(userAtom)
 	const { data: rocketStatus = false } = useAtomValue(rocketStatusQueryAtom)
 	const { checkWithToast } = usePermissionCheck()
 	const [choosing, setChoosing] = useState(false)
@@ -237,7 +237,7 @@ export function TradingConfigForm() {
 
 										<FormControl>
 											<RadioGroup
-												disabled={!user?.isMember}
+												disabled={!isStock}
 												onValueChange={field.onChange}
 												defaultValue={field.value}
 												className="flex space-x-1"
@@ -312,7 +312,7 @@ export function TradingConfigForm() {
 
 										<FormControl>
 											<RadioGroup
-												disabled={!user?.isMember}
+												disabled={!isStock}
 												onValueChange={field.onChange}
 												defaultValue={field.value}
 												className="flex space-x-1"
@@ -357,7 +357,7 @@ export function TradingConfigForm() {
 
 										<FormControl>
 											<RadioGroup
-												disabled={!user?.isMember}
+												disabled={!isStock}
 												onValueChange={field.onChange}
 												defaultValue={field.value}
 												className="flex space-x-1"
@@ -446,7 +446,7 @@ export function TradingConfigForm() {
 											<Input
 												{...field}
 												readOnly
-												disabled={!user?.isMember}
+												disabled={!isStock}
 												onClick={() => handleFolderSelect.run("qmt_path")}
 												placeholder="请填写 qmt 安装路径..."
 											/>
@@ -454,7 +454,7 @@ export function TradingConfigForm() {
 										<Button
 											size="sm"
 											variant="outline"
-											disabled={!user?.isMember}
+											disabled={!isStock}
 											onClick={(e) => {
 												e.preventDefault()
 												handleFolderSelect.run("qmt_path")
@@ -483,7 +483,7 @@ export function TradingConfigForm() {
 									<FormControl>
 										<Input
 											{...field}
-											disabled={!user?.isMember}
+											disabled={!isStock}
 											className="w-full"
 											placeholder="请填写 qmt 账户号..."
 										/>

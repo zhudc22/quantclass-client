@@ -174,46 +174,25 @@ export const clearScheduledTasks = (): void => {
  * @param stg 策略对象
  * @returns 实盘交易配置的字典
  */
-export function genSelectStrategyDict(
-	stg: SelectStgType,
-	trade_time:
-		| { sell_time: TimeValue; buy_time: TimeValue }
-		| undefined = undefined,
-) {
-	const reb_time = stg.rebalance_time ?? "close-open"
-	const { sell_time, buy_time } = trade_time ?? autoTradeTimeByRebTime(reb_time) // -- 生成自动交易时间
+export function genSelectStrategyDict(stg: SelectStgType) {
+	const reb_time = "close-open"
+	const { sell_time, buy_time } = autoTradeTimeByRebTime(reb_time) // -- 生成自动交易时间
 	return {
 		strategy_weight: stg.cap_weight,
-		hold_plan: (stg.offset_list || [0]).map(
-			(offset) => `${(stg.hold_period ?? "5D").replace("D", "")}_${offset}`,
-		),
+		hold_plan: [`${stg.hold_period.replace("D", "")}_0`],
 		select_count: stg.select_num,
 		stock_weight: ["equal_weight", false], // -- 默认为等权重，(当选股数量不足的时候，是否自动补足，false的话是全仓)
 		buy: [
 			"t_wap", // -- 拆单策略
-			stg.buy_time ??
-				`${buy_time.hour.toString().padStart(2, "0")}:${buy_time.minute
-					.toString()
-					.padStart(2, "0")}:${
-					buy_time.second?.toString().padStart(2, "0") ?? "00"
-				}`, // 买入时间，时分秒补零
+			stg.buy_time ?? buy_time.toString(), // 买入时间
 			Math.floor(Math.random() * (45 - 25 + 1)) + 25, // 随机买入时间间隔
 			stg.split_order_amount ??
 				Math.floor(Math.random() * (12000 - 6000 + 1)) + 6000, // 随机拆单金额
 			1.005, // 买入价格浮动比例
 		],
-		sell: [
-			"base_sell",
-			stg.sell_time ??
-				`${sell_time.hour.toString().padStart(2, "0")}:${sell_time.minute
-					.toString()
-					.padStart(2, "0")}:${
-					sell_time.second?.toString().padStart(2, "0") ?? "00"
-				}`, // 卖出时间，时分秒补零
-		], // -- 卖出策略，一笔全卖（夏普说的）
+		sell: ["base_sell", stg.sell_time ?? sell_time.toString()], // -- 卖出策略，一笔全卖（叶润说的）
 		risk: [false], // -- 默认为 false，客户端不改
 		intraday_swap: IntradayWap[reb_time] ?? IntradayWap.open, // -- 默认为早盘换仓
-		netting_tag: stg.rebalance_time,
 	}
 }
 

@@ -80,7 +80,7 @@ const TRADING_PLATE: Record<string, PlateConfig> = {
 
 export const _SidebarHeader = () => {
 	const { pathname } = useLocation()
-	const { isMember } = useAtomValue(userAtom)
+	const { isStock } = useAtomValue(userAtom)
 	const navigate = useNavigate()
 	const [isHovered, setIsHovered] = useState<boolean>(false)
 	const [_, setActiveTab] = useAtom(activeTabAtom)
@@ -90,7 +90,7 @@ export const _SidebarHeader = () => {
 	// 实盘交易权限检查
 	const canRealTrading =
 		VITE_XBX_ENV === "development" ||
-		(isMember && isWindows && VITE_XBX_ENV === "production")
+		(isStock && isWindows && VITE_XBX_ENV === "production")
 
 	const Plates = canRealTrading
 		? { ...BASE_PLATES, ...TRADING_PLATE }
