@@ -23,14 +23,14 @@ export const useGenSubscribeColumns = (): Array<
 
 	const isDisabled = useCallback(
 		(row: Row<ISubscribeListType>) => {
-			if (isStock) return false
+			// if (isStock) return false
 
 			const courseType = row.original.course_access?.[0]
 			return courseType
 				? roles[courseType as keyof typeof roles].disabled
 				: true
 		},
-		[isStock, roles],
+		[roles],
 	)
 
 	const columns = useMemo(
