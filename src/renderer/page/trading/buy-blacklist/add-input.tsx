@@ -115,12 +115,6 @@ export default function BuyBlacklistAddInput() {
 				show={reasonDialog}
 				setShow={setReasonDialog}
 				stockCode={pendingStockCode}
-				onConfirm={(buyBlacklistItem) => {
-					addBlacklistItem(buyBlacklistItem)
-					setReasonDialog(false)
-					setInput("")
-					toast.success(`拉黑${buyBlacklistItem.code}成功`)
-				}}
 			/>
 		</>
 	)

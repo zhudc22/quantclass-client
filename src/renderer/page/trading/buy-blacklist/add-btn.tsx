@@ -11,23 +11,20 @@
 import { Button } from "@/renderer/components/ui/button"
 import { useMemo, useState } from "react"
 
-import { toast } from "sonner"
-import { validateStockCode } from "@/renderer/utils"
-import { useBuyBlacklist } from "@/renderer/hooks/useBuyBlacklist"
-import BuyBlacklistAddConfirm from "./confirm-add-dialog"
-import { ShieldBan, Trash2 } from "lucide-react"
 import ButtonTooltip from "@/renderer/components/ui/button-tooltip"
+import { useBuyBlacklist } from "@/renderer/hooks/useBuyBlacklist"
+import { validateStockCode } from "@/renderer/utils"
+import { ShieldBan, Trash2 } from "lucide-react"
+import { toast } from "sonner"
+import BuyBlacklistAddConfirm from "./confirm-add-dialog"
 
 export default function BuyBlacklistAddBtn({
 	stockCode,
 }: {
 	stockCode: string
 }) {
-	const {
-		addBlacklistItem,
-		removeBlacklistItem,
-		isBlacklisted: isBlacklistedFn,
-	} = useBuyBlacklist()
+	const { removeBlacklistItem, isBlacklisted: isBlacklistedFn } =
+		useBuyBlacklist()
 
 	const [reasonDialog, setReasonDialog] = useState(false)
 
@@ -90,11 +87,6 @@ export default function BuyBlacklistAddBtn({
 				show={reasonDialog}
 				setShow={setReasonDialog}
 				stockCode={stockCode}
-				onConfirm={(buyBlacklistItem) => {
-					addBlacklistItem(buyBlacklistItem)
-					setReasonDialog(false)
-					toast.success(`拉黑${buyBlacklistItem.code}成功`)
-				}}
 			/>
 		</>
 	)

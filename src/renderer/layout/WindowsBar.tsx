@@ -14,7 +14,6 @@ import { useAtomValue } from "jotai"
 import { Maximize2, Minimize2, Minus, X } from "lucide-react"
 // @ts-ignore
 import Img from "../../../build/icon.ico"
-import { Badge } from "../components/ui/badge"
 import ButtonTooltip from "../components/ui/button-tooltip"
 import { cn } from "../lib/utils"
 import { isFullscreenAtom } from "../store"
@@ -43,9 +42,9 @@ const WindowsBar = ({ toggleFullscreen }: { toggleFullscreen: () => void }) => {
 								<span className="text-foreground text-sm">
 									量化小讲堂客户端
 								</span>
-								<Badge variant={"default"} className="ml-2">
+								{/* <Badge variant={"default"} className="ml-2">
 									2025版
-								</Badge>
+								</Badge> */}
 							</div>
 						)}
 					</div>
@@ -54,6 +53,11 @@ const WindowsBar = ({ toggleFullscreen }: { toggleFullscreen: () => void }) => {
 						<div className="window-control-region flex items-center gap-4">
 							<ButtonTooltip content="最小化">
 								<div
+									onKeyDown={(e) => {
+										if (e.key === "Enter" || e.key === " ") {
+											minimizeApp()
+										}
+									}}
 									className="hover:cursor-pointer text-foreground hover:text-foreground/80"
 									onClick={() => minimizeApp()}
 								>
@@ -62,6 +66,11 @@ const WindowsBar = ({ toggleFullscreen }: { toggleFullscreen: () => void }) => {
 							</ButtonTooltip>
 							<ButtonTooltip content={isMaximized ? "还原" : "全屏"}>
 								<div
+									onKeyDown={(e) => {
+										if (e.key === "Enter" || e.key === " ") {
+											handleMaximize()
+										}
+									}}
 									className="hover:cursor-pointer text-foreground hover:text-foreground/80"
 									onClick={handleMaximize}
 								>
@@ -74,6 +83,11 @@ const WindowsBar = ({ toggleFullscreen }: { toggleFullscreen: () => void }) => {
 							</ButtonTooltip>
 							<ButtonTooltip content="关闭">
 								<div
+									onKeyDown={(e) => {
+										if (e.key === "Enter" || e.key === " ") {
+											closeApp("main")
+										}
+									}}
 									className="hover:cursor-pointer text-foreground hover:text-foreground/80"
 									onClick={() => closeApp("main")}
 								>

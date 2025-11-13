@@ -10,7 +10,7 @@
 
 import { Button } from "@/renderer/components/ui/button"
 import { Input } from "@/renderer/components/ui/input"
-import { useEffect, useState } from "react"
+import { useState } from "react"
 
 import {
 	Dialog,
@@ -20,6 +20,7 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from "@/renderer/components/ui/dialog"
+import { Label } from "@/renderer/components/ui/label"
 import {
 	RadioGroup,
 	RadioGroupItem,
@@ -31,21 +32,16 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/renderer/components/ui/select"
-import { toast } from "sonner"
-import { Label } from "@/renderer/components/ui/label"
-import type { BlacklistItem } from "@/renderer/types/trading"
 import { cn } from "@/renderer/lib/utils"
 
 export default function BuyBlacklistAddConfirm({
 	show,
 	setShow,
 	stockCode,
-	onConfirm,
 }: {
 	show: boolean
 	setShow: (show: boolean) => void
 	stockCode: string
-	onConfirm: (buyBlacklistItem: BlacklistItem) => void
 }) {
 	const [blacklistType, setBlacklistType] = useState<"always" | "condition">(
 		"always",
@@ -55,65 +51,6 @@ export default function BuyBlacklistAddConfirm({
 	)
 	const [thresholdValue, setThresholdValue] = useState("9")
 	const [reasonInput, setReasonInput] = useState("")
-
-	// 确认拉黑
-	const confirmBlacklist = async () => {
-		// 验证条件设置
-		if (blacklistType === "condition") {
-			if (!thresholdValue || thresholdValue.trim() === "") {
-				toast.error("请输入阈值")
-				return
-			}
-
-			const threshold = parseFloat(thresholdValue)
-			if (isNaN(threshold)) {
-				toast.error("阈值必须是有效的数字")
-				return
-			}
-
-			if (threshold < 0 || threshold > 20) {
-				toast.error("阈值必须在0-20之间")
-				return
-			}
-		}
-
-		const currentTime = new Date()
-		const timeStr = `${currentTime.getFullYear()}-${(currentTime.getMonth() + 1).toString().padStart(2, "0")}-${currentTime.getDate().toString().padStart(2, "0")} ${currentTime.getHours().toString().padStart(2, "0")}:${currentTime.getMinutes().toString().padStart(2, "0")}:${currentTime.getSeconds().toString().padStart(2, "0")}`
-
-		const newBlacklistItem: BlacklistItem = {
-			code: stockCode,
-			reason: reasonInput,
-			time: timeStr,
-			type: blacklistType,
-			condition:
-				blacklistType === "condition"
-					? {
-							type: conditionType,
-							threshold: parseFloat(parseFloat(thresholdValue).toFixed(2)),
-						}
-					: undefined,
-		}
-
-		// 使用hook中的方法添加黑名单项
-		try {
-			onConfirm(newBlacklistItem)
-		} catch (error) {
-			console.error("保存黑名单失败:", error)
-			toast.error("保存失败，请重试")
-		}
-
-		// 重置状态
-		const reset = () => {
-			setReasonInput("")
-			setBlacklistType("always")
-			setConditionType("gain")
-			setThresholdValue("9")
-		}
-
-		useEffect(() => {
-			reset()
-		}, [])
-	}
 
 	return (
 		<Dialog open={show} onOpenChange={setShow}>
@@ -192,7 +129,8 @@ export default function BuyBlacklistAddConfirm({
 											// 检查数值范围
 											if (
 												value === "" ||
-												(parseFloat(value) >= 0 && parseFloat(value) <= 20)
+												(Number.parseFloat(value) >= 0 &&
+													Number.parseFloat(value) <= 20)
 											) {
 												setThresholdValue(value)
 											}
@@ -242,16 +180,14 @@ export default function BuyBlacklistAddConfirm({
 						取消
 					</Button>
 					<Button
-						onClick={confirmBlacklist}
-						disabled={
-							blacklistType === "condition" &&
-							(!thresholdValue ||
-								thresholdValue.trim() === "" ||
-								parseFloat(thresholdValue) < 0 ||
-								parseFloat(thresholdValue) > 20)
-						}
+						onClick={() => {
+							window.electronAPI.openUrl(
+								"https://www.quantclass.cn/fen/class/fen-2025",
+							)
+							setShow(false)
+						}}
 					>
-						确认拉黑
+						分享会专享
 					</Button>
 				</DialogFooter>
 			</DialogContent>

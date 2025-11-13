@@ -19,7 +19,6 @@ import {
 } from "@/renderer/components/ui/sidebar"
 import {
 	BACKTEST_PAGE,
-	FUSION_STRATEGY_LIBRARY_PAGE,
 	POSITION_INFO_PAGE,
 	// CHANGE_LOGS_PAGE,
 	// FAQ_PAGE,
@@ -37,15 +36,12 @@ import { useAtomValue, useSetAtom } from "jotai"
 import {
 	Briefcase,
 	Check,
-	Code,
 	DatabaseBackup,
 	Gamepad2,
 	House,
-	Library,
 	LibraryBig,
 	MessageSquareWarning,
 	PencilRuler,
-	SquareLibrary,
 	TvMinimalPlay,
 } from "lucide-react"
 import { useState } from "react"
@@ -236,7 +232,7 @@ export const _SidebarContent = () => {
 					</SidebarMenuItem>
 				</SidebarMenu>
 			</SidebarGroup>
-			<SidebarGroup>
+			{/* <SidebarGroup>
 				<SidebarGroupLabel>研究中心（开发中）</SidebarGroupLabel>
 				<SidebarMenu>
 					<SidebarMenuItem>
@@ -250,7 +246,7 @@ export const _SidebarContent = () => {
 						</SidebarMenuButton>
 					</SidebarMenuItem>
 				</SidebarMenu>
-			</SidebarGroup>
+			</SidebarGroup> */}
 
 			<SidebarGroup>
 				<SidebarGroupLabel>帮助中心</SidebarGroupLabel>
