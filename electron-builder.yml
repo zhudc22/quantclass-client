@@ -1,4 +1,4 @@
-appId: Quantclass
+appId: QuantclassBasic
 productName: QuantclassClientBasic
 directories:
   buildResources: build
@@ -37,7 +37,7 @@ asarUnpack:
 releaseInfo:
   releaseNotesFile: CHANGELOG.md
 win:
-  executableName: quantclass
+  executableName: quantclass-basic
 nsis:
   include: win/installer.nsh
   artifactName: ${productName}-${version}.${ext}
