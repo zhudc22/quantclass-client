@@ -86,25 +86,6 @@ export default function BuyBlacklist() {
 		<>
 			<H4 className="flex items-center gap-2">
 				<ShieldBan size={24} /> 买入黑名单
-				<span
-					className={cn(
-						"text-xs px-2 py-1.5 rounded-full text-white font-medium",
-						"bg-gradient-to-r from-purple-500 to-pink-500",
-					)}
-				>
-					分享会专享功能
-				</span>
-				<button
-					type="button"
-					className="cursor-pointer text-muted-foreground hover:text-foreground transition-colors"
-					onClick={() => {
-						window.electronAPI.openUrl(
-							"https://www.quantclass.cn/fen/class/fen-2025",
-						)
-					}}
-				>
-					<CircleHelp className="w-4 h-4" />
-				</button>
 			</H4>
 			<div className="text-muted-foreground pt-1 mb-2 text-sm">
 				设置不买入的股票，所有更改

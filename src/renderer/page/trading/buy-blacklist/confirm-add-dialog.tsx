@@ -10,8 +10,10 @@
 
 import { Button } from "@/renderer/components/ui/button"
 import { Input } from "@/renderer/components/ui/input"
+import { Lock } from "lucide-react"
 import { useState } from "react"
 
+import { AnimatedRainbowCard } from "@/renderer/components/ui/animated-rainbow-card"
 import {
 	Dialog,
 	DialogContent,
@@ -57,8 +59,23 @@ export default function BuyBlacklistAddConfirm({
 			<DialogContent className="max-w-lg">
 				<DialogHeader>
 					<DialogTitle>确认拉黑{stockCode}？</DialogTitle>
-					<DialogDescription>请补充拉黑的条件和细节</DialogDescription>
+					<DialogDescription>
+						买入黑名单功能可以帮助您更精准地控制交易策略
+					</DialogDescription>
 				</DialogHeader>
+
+				<AnimatedRainbowCard
+					icon={<Lock className="h-5 w-5" />}
+					title="分享会专享功能"
+				>
+					<p className="text-sm text-blue-800 dark:text-blue-300 mt-2">
+						买入黑名单支持设置"始终不买入"或"条件不买入"策略，帮助您更精细化管理交易。
+					</p>
+					<p className="text-xs text-blue-700 dark:text-blue-400 mt-1">
+						加入分享会即可解锁完整功能
+					</p>
+				</AnimatedRainbowCard>
+
 				<div className="grid gap-4">
 					{/* 拉黑类型选择 */}
 					<div className="grid gap-2">
@@ -187,7 +204,8 @@ export default function BuyBlacklistAddConfirm({
 							setShow(false)
 						}}
 					>
-						分享会专享
+						<Lock className="h-4 w-4 mr-2" />
+						了解分享会
 					</Button>
 				</DialogFooter>
 			</DialogContent>
