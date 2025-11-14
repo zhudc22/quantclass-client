@@ -57,6 +57,14 @@ export function useStrategyManager() {
 		[selectStgList, setSelectStgList],
 	)
 
+	const updateSelectStgList = useCallback(
+		(strategies: SelectStgType[]) => {
+			setSelectStgList(strategies)
+			return strategies
+		},
+		[setSelectStgList],
+	)
+
 	return {
 		// -- 选股策略列表
 		selectStgList,
@@ -67,6 +75,7 @@ export function useStrategyManager() {
 		addSelectStgList,
 		removeSelectStg,
 		updateSelectStg,
+		updateSelectStgList,
 		resetSelectStgList,
 	}
 }
