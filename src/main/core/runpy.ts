@@ -54,6 +54,22 @@ export async function fetchRemoteVersions(): Promise<AppVersions> {
 
 	const resp = await response.json()
 
+	// 如果响应中不包含 basic 内核信息，添加默认的 basic 信息
+	if (!resp.basic || resp.basic.length === 0) {
+		const defaultBasicInfo = {
+			download:
+				"https://cdnservice.quantclass.cn/client/basic_bin_1.0.0a/basic.zip",
+			version: "basic_bin_1.0.0a",
+			description: "基础选股内核 1.0.0a",
+			release: dayjs().format("YYYY-MM-DD"),
+			label: "stable",
+		}
+
+		resp.basic = [defaultBasicInfo]
+
+		resp.latest.basic = defaultBasicInfo.version
+	}
+
 	store.setValue("app.versions", resp)
 	return resp
 }
