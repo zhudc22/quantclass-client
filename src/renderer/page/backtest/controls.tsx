@@ -59,7 +59,7 @@ export const BacktestControls = () => {
 			})
 			const kernel = "basic"
 			console.log("开始回测", libraryType, kernel)
-			await execFuelWithEnv(["select"], "策略回测", kernel)
+			await execFuelWithEnv(["select", "backtest"], "策略回测", kernel)
 			setBacktestExecTime(
 				(prev: {
 					startTime: string
