@@ -15,9 +15,9 @@ import { atomEffect } from "jotai-effect"
 import { atomWithQuery } from "jotai-tanstack-query"
 import { atomWithStorage } from "jotai/utils"
 import md5 from "md5"
+import { settingsAtom } from "./electron"
 import { postUserActionMutationAtom } from "./mutation"
 const { VITE_BASE_URL } = import.meta.env
-
 const { rendererLog } = window.electronAPI
 
 export function uuidV4() {
@@ -169,6 +169,12 @@ export const userAuthEffectAtom = atomEffect((get, set) => {
 					apiKey: WebUserInfoFromMain.user.apiKey,
 				})
 			}
+
+			set(settingsAtom, (prev) => ({
+				...prev,
+				hid: WebUserInfoFromMain.user?.uuid ?? "",
+				api_key: WebUserInfoFromMain.user?.apiKey ?? "",
+			}))
 
 			rendererLog("info", "[user] 用户信息已从主进程同步到渲染进程")
 		}
