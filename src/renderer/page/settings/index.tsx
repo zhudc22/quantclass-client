@@ -243,26 +243,24 @@ export default function SettingsPage() {
 						appVersions={appVersions}
 					/>
 
-					{canRealTrading && isStock && (
-						<>
-							<KernalVersion
-								name="basic"
-								title="选股内核"
-								Icon={SquareFunction}
-								versionKey="basicVersion"
-								appVersions={appVersions}
-							/>
+					<>
+						<KernalVersion
+							name="basic"
+							title="选股内核"
+							Icon={SquareFunction}
+							versionKey="basicVersion"
+							appVersions={appVersions}
+						/>
 
-							<KernalVersion
-								name="rocket"
-								title="下单内核"
-								Icon={Blocks}
-								versionKey="rocketVersion"
-								appVersions={appVersions}
-								disabled={window.electron?.process?.platform === "darwin"}
-							/>
-						</>
-					)}
+						<KernalVersion
+							name="rocket"
+							title="下单内核"
+							Icon={Blocks}
+							versionKey="rocketVersion"
+							appVersions={appVersions}
+							disabled={window.electron?.process?.platform === "darwin"}
+						/>
+					</>
 				</div>
 			</div>
 
@@ -270,7 +268,7 @@ export default function SettingsPage() {
 				<Button
 					variant="outline"
 					size="sm"
-					disabled={isCheckingAppVersions || isLoadingLocalVersions}
+					disabled={!isStock || isCheckingAppVersions || isLoadingLocalVersions}
 					onClick={async () => {
 						await refetchAppVersions()
 						await refetchLocalVersions()
@@ -291,6 +289,7 @@ export default function SettingsPage() {
 				<Button
 					variant="outline"
 					size="sm"
+					disabled={!isStock}
 					onClick={async () => {
 						if (!isStock) {
 							toast.dismiss()
@@ -340,13 +339,16 @@ export default function SettingsPage() {
 							数据更新性能，性能越高，数据更新速度越快，但会占用更多性能。
 						</p>
 					</div>
-					<PerformanceModeSelectTabs
-						name="数据更新"
-						defaultValue={settings.performance_mode || "EQUAL"}
-						onValueChange={(value) => {
-							updateSettings({ performance_mode: value })
-						}}
-					/>
+					<div className={cn(!isStock && "pointer-events-none opacity-50")}>
+						<PerformanceModeSelectTabs
+							name="数据更新"
+							defaultValue={settings.performance_mode || "EQUAL"}
+							onValueChange={(value) => {
+								if (!isStock) return
+								updateSettings({ performance_mode: value })
+							}}
+						/>
+					</div>
 				</div>
 
 				<div className="flex items-center justify-between">
@@ -359,13 +361,16 @@ export default function SettingsPage() {
 							选股性能模式，性能越高，选股速度越快，但会占用更多性能。
 						</p>
 					</div>
-					<PerformanceModeSelectTabs
-						name="选股"
-						defaultValue={realMarketConfig.performance_mode || "EQUAL"}
-						onValueChange={(value) => {
-							setPerformanceMode(value)
-						}}
-					/>
+					<div className={cn(!isStock && "pointer-events-none opacity-50")}>
+						<PerformanceModeSelectTabs
+							name="选股"
+							defaultValue={realMarketConfig.performance_mode || "EQUAL"}
+							onValueChange={(value) => {
+								if (!isStock) return
+								setPerformanceMode(value)
+							}}
+						/>
+					</div>
 				</div>
 			</div>
 
@@ -408,6 +413,7 @@ export default function SettingsPage() {
 					<Switch
 						id="is_auto_launch_update"
 						checked={isAutoLaunchUpdate}
+						disabled={!isStock}
 						onCheckedChange={handleSetIsAutoLaunchUpdate}
 					/>
 				</div>
@@ -429,6 +435,7 @@ export default function SettingsPage() {
 						<Switch
 							id="is_auto_launch_real_trading"
 							checked={isAutoLaunchRealTrading}
+							disabled={!isStock}
 							onCheckedChange={handleSetIsAutoLaunchRealTrading}
 						/>
 					</div>
