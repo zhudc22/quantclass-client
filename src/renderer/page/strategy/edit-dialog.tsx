@@ -53,7 +53,6 @@ export default function StrategyEditDialog({
 		const updatedStg = {
 			...strategy,
 			...values,
-			offset_list: values.offset_list.split(",").map(Number),
 			rebalance_time: values.rebalance_time,
 		} as SelectStgType
 
